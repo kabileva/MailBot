@@ -1,38 +1,53 @@
 from __future__ import print_function
-
-from flask import Flask, request
-
-import httplib2
-import os
-import requests
-from httplib2 import Http
+import flask
 from .mbot import Mbot
 
-app = Flask(__name__)
+app = flask.Flask(__name__)
 
 mbot = Mbot()
 
-#@app.route('/')
-#def check_server():
+
+# @app.route('/')
+# def check_server():
 #	return 'ok'
-	
+
 @app.route('/', methods=['GET'])
 def handle_verification():
-	if request.args['hub.verify_token'] == mbot.VERIFY_TOKEN:
-		return request.args['hub.challenge']
-	else:
-		return "Invalid verification token"
+    if flask.request.args['hub.verify_token'] == mbot.VERIFY_TOKEN:
+        return flask.request.args['hub.challenge']
+    else:
+        return "Invalid verification token"
+
 
 @app.route('/', methods=['POST'])
 def handle_incoming_messages():
-	data = request.json
-	sender = data['entry'][0]['messaging'][0]['sender']['id']
-	message = data['entry'][0]['messaging'][0]['message']['text']
+    data = flask.request.json
+    sender = data['entry'][0]['messaging'][0]['sender']['id']
+    message = data['entry'][0]['messaging'][0]['message']['text']
+    redirect_uri = flask.url_for('oauth2callback', _external=True)
+    state = mbot.web_authorize(sender, redirect_uri)
+    # Store the state so the callback can verify the auth server response.
+    flask.session['state'] = state
 
-	mbot.web_authorize(sender)
-	#mbot.reply(sender, message)
-	#mbot.callSendAPI(sender, createLoginButton("https://www.google.com"))	
-	return "ok"
+    # mbot.reply(sender, message)
+    # mbot.callSendAPI(sender, createLoginButton("https://www.google.com"))
+    return "ok"
+
+
+@app.route('/oauth2callback')
+def oauth2callback():
+    # Specify the state when creating the flow in the callback so that it can
+    # verified in the authorization server response.
+    state = flask.session['state']
+    redirect_uri = flask.url_for('oauth2callback', _external=True)
+    authorization_response = flask.request.url
+    credentials = mbot.oauth2callback(state, redirect_uri, authorization_response)
+    # Store credentials in the session.
+    # ACTION ITEM: In a production app, you likely want to save these
+    #              credentials in a persistent database instead.
+    flask.session['credentials'] = credentials
+    return "ok"
+
 
 if __name__ == "__main__":
-	app.run()
+    app.run()
