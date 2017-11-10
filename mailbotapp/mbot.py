@@ -31,7 +31,7 @@ class Mbot(object):
         flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(self.CLIENT_SECRETS_FILE, self.SCOPES)
         # Indicate where the API server will redirect the user after the user completes
         # the authorization flow. The redirect URI is required.
-        flow.redirect_uri = 'http://localhost:6680'
+        flow.redirect_uri = redirect_uri
         # Generate URL for request to Google's OAuth 2.0 server.
         # Use kwargs to set optional request parameters.
         authorization_url, state = flow.authorization_url(
@@ -47,7 +47,7 @@ class Mbot(object):
     def oauth2callback(self, state, redirect_uri, authorization_response):
         flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
             self.CLIENT_SECRETS_FILE, scopes=self.SCOPES, state=state)
-        flow.redirect_uri = 'http://localhost:6680'
+        flow.redirect_uri = redirect_uri
         # Use the authorization server's response to fetch the OAuth 2.0 tokens.
         flow.fetch_token(authorization_response=authorization_response)
         # Store credentials in the session.
