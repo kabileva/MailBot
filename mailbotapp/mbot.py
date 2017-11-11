@@ -44,6 +44,28 @@ class Mbot(object):
         self.reply(user_psid, self.login_button(authorization_url))
         return state
 
+    def send_login_button(self, user_psid, url):
+        self.user_psid = user_psid
+        self.reply(user_psid, self.login_button(url))
+        return
+
+    def new_authorize(self, user_psid, redirect_uri):
+        # Use the client_secret.json file to identify the application requesting
+        # authorization. The client ID (from that file) and access scopes are required.
+        flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(self.CLIENT_SECRETS_FILE, self.SCOPES)
+        # Indicate where the API server will redirect the user after the user completes
+        # the authorization flow. The redirect URI is required.
+        flow.redirect_uri = redirect_uri
+        # Generate URL for request to Google's OAuth 2.0 server.
+        # Use kwargs to set optional request parameters.
+        authorization_url, state = flow.authorization_url(
+            # Enable offline access so that you can refresh an access token without
+            # re-prompting the user for permission. Recommended for web server apps.
+            access_type='offline',
+            # Enable incremental authorization. Recommended as a best practice.
+            include_granted_scopes='true')
+        return authorization_url, state
+
     def oauth2callback(self, state, redirect_uri, authorization_response):
         flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
             self.CLIENT_SECRETS_FILE, scopes=self.SCOPES, state=state)

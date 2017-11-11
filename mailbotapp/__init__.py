@@ -24,14 +24,25 @@ def handle_incoming_messages():
     data = flask.request.json
     sender = data['entry'][0]['messaging'][0]['sender']['id']
     message = data['entry'][0]['messaging'][0]['message']['text']
-    redirect_uri = flask.url_for('oauth2callback', _external=True)
-    state = mbot.web_authorize(sender, redirect_uri)
-    # Store the state so the callback can verify the auth server response.
-    flask.session['state'] = state
+    # redirect_uri = flask.url_for('oauth2callback', _external=True)
+    # state = mbot.web_authorize(sender, redirect_uri)
+    # # Store the state so the callback can verify the auth server response.
+    # flask.session['state'] = state
 
+    auth_url = flask.url_for('authorize', _external=True) + str(sender)
+    mbot.send_login_button(sender, auth_url)
     # mbot.reply(sender, message)
     # mbot.callSendAPI(sender, createLoginButton("https://www.google.com"))
     return "ok"
+
+
+@app.route('/authorize/<int:user_psid>')
+def authorize(user_psid):
+    redirect_uri = flask.url_for('oauth2callback', _external=True)
+    authorization_url, state = mbot.new_authorize(user_psid, redirect_uri)
+    # Store the state so the callback can verify the auth server response.
+    flask.session['state'] = state
+    return flask.redirect(authorization_url)
 
 
 @app.route('/oauth2callback')
