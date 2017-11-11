@@ -29,7 +29,7 @@ def handle_incoming_messages():
     # # Store the state so the callback can verify the auth server response.
     # flask.session['state'] = state
 
-    auth_url = flask.url_for('authorize', _external=True) + str(sender)
+    auth_url = flask.url_for('authorize', user_psid=sender, _external=True)
     mbot.send_login_button(sender, auth_url)
     # mbot.reply(sender, message)
     # mbot.callSendAPI(sender, createLoginButton("https://www.google.com"))
