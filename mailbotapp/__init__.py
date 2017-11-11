@@ -29,7 +29,7 @@ def handle_incoming_messages():
     # # Store the state so the callback can verify the auth server response.
     # flask.session['state'] = state
 
-    auth_url = flask.url_for('authorize', user_psid=sender, _external=True)
+    auth_url = flask.url_for('authorize', user_psid=sender, _external=True, _scheme='https')
     mbot.send_login_button(sender, auth_url)
     # mbot.reply(sender, message)
     # mbot.callSendAPI(sender, createLoginButton("https://www.google.com"))
@@ -38,7 +38,7 @@ def handle_incoming_messages():
 
 @app.route('/authorize/<int:user_psid>')
 def authorize(user_psid):
-    redirect_uri = flask.url_for('oauth2callback', _external=True)
+    redirect_uri = flask.url_for('oauth2callback', _external=True, _scheme='https')
     authorization_url, state = mbot.new_authorize(user_psid, redirect_uri)
     # Store the state so the callback can verify the auth server response.
     flask.session['state'] = state
