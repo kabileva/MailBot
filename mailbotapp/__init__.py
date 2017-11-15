@@ -71,6 +71,7 @@ def oauth2callback():
 def chat():
     form = ChatForm()
     flask.render_template('chat.html', form=form)
+    return 'ok'
 
 
 if __name__ == "__main__":
