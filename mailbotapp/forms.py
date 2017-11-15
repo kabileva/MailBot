@@ -1,5 +1,8 @@
 from flask_wtf import Form
-from wtforms import TextField
+from wtforms import StringField, PasswordField
+from wtforms.validators import DataRequired, Email
+
 
 class ChatForm(Form):
-	email = TextField("Your email")
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    password = PasswordField('Password', validators=[DataRequired()])

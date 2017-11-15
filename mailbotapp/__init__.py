@@ -1,6 +1,7 @@
 from __future__ import print_function
 import flask
 from .mbot import Mbot
+from .forms import ChatForm
 import os
 # TODO: make it work with https 
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
@@ -63,6 +64,12 @@ def oauth2callback():
     #              credentials in a persistent database instead.
     #
     return flask.jsonify(credentials)
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def chat():
+    form = ChatForm()
+    flask.render_template('chat.html', form=form)
 
 
 if __name__ == "__main__":
