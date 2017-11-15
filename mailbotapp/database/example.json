@@ -1,0 +1,10 @@
+{
+  "client_id": "931653727468-ncf4n4k90t8u0et2pj9808gn9h8rvkal.apps.googleusercontent.com", 
+  "client_secret": "gKWtUvSK14mA6D9PmPDzXIlD", 
+  "refresh_token": null, 
+  "scopes": [
+    "https://www.googleapis.com/auth/gmail.readonly"
+  ], 
+  "token": "ya29.GlsBBYeiZiDtnS5aomiDd7SnIGImEh_-SLJHow2RDRD8Ro3VEJLY_0aGPSszEZPOXB6JnFj6-wHJ_BJfmaule0LldrG5Gt0JPNP-DqTNjWp8cbRub3652tgtX9Ye", 
+  "token_uri": "https://accounts.google.com/o/oauth2/token"
+}

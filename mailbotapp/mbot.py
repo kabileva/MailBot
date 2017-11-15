@@ -1,13 +1,17 @@
+from __future__ import print_function
+import httplib2
 import google.oauth2.credentials
 import google_auth_oauthlib.flow
+from googleapiclient.discovery import build
 import requests
-
+import argparse
 
 class Mbot(object):
     def __init__(self):
         self.ACCESS_TOKEN = "EAAXuNBwZBG9kBAECVP64YldWTKZCJQSYQ5ZBpj1Pm2bWBZAradyU9xYHy7q66Yf4vZAHny0cWJQJNcqQ93ICHHJX7dJSqFUPGwpySZBOQtZCRlKn72JbYqYKPW8H70xdj2BLGS1BQ8DinSggoF2r6OlC3PIEEp8B2oUyLHs7iXHLgZDZD"
-        self.VERIFY_TOKEN = "secret"
+#        self.VERIFY_TOKEN = "secret"
         self.SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
+# 	self.SCOPES = ['https://mail.google.com/']
         self.CLIENT_SECRETS_FILE = '/var/www/mailbotapp/mailbotapp/client_secret.json'
         self.user_psid = None
 
@@ -75,17 +79,48 @@ class Mbot(object):
         # Store credentials in the session.
         # ACTION ITEM: In a production app, you likely want to save these
         #              credentials in a persistent database instead.
-        self.reply(self.user_psid, {"text": 'Authorization went fine. Thank you.'})
-        return Mbot.credentials_to_dict(flow.credentials)
+	self.reply(self.user_psid, {"text": 'Authorization went fine. Thank you!'})
+	credentials = flow.credentials
+	return Mbot.credentials_to_dict(credentials)
 
+    def access_gmail(self,credentials):	
+	GMAIL = build('gmail', 'v1', credentials=credentials, cache_discovery=False)
+  
+	###connecting to GMAIL###
+	threads = GMAIL.users().threads().list(userId='me').execute().get('threads', [])
+	#for thread in threads:
+	#retrieve only last:
+	subjects = []
+	for t in range(1):    
+            tdata = GMAIL.users().threads().get(userId='me', id=threads[t]['id']).execute()
+	    #tdata = GMAIL.users().threads().get(userId='me', id=thread['id']).execute()
+	    nmsgs = len(tdata['messages'])
+
+	    if nmsgs > 0:
+	        msg = tdata['messages'][0]['payload']
+	        subject = ''
+	        for header in msg['headers']:
+	            if header['name'] == 'Subject':
+	                subject = header['value']
+	                break
+	        if subject:
+			subjects.append(subject)
+	return subjects
+    
     @staticmethod
     def credentials_to_dict(credentials):
         return {'token': credentials.token,
-                'refresh_token': credentials.refresh_token,
-                'token_uri': credentials.token_uri,
+		'refresh_token': credentials.refresh_token,
+		'token_uri': credentials.token_uri,
                 'client_id': credentials.client_id,
                 'client_secret': credentials.client_secret,
                 'scopes': credentials.scopes}
+
+    @staticmethod
+    def credentials_from_dict(cred_dict):
+	credentials = google.oauth2.credentials.Credentials(cred_dict['token'],refresh_token=cred_dict['refresh_token'],token_uri=cred_dict['token_uri'],client_id=cred_dict['client_id'],client_secret=cred_dict['client_secret'],scopes=cred_dict['scopes']
+)
+	return credentials
 
     @staticmethod
     def login_button(url):

@@ -1,6 +1,9 @@
 from __future__ import print_function
 import flask
 from .mbot import Mbot
+import os
+# TODO: make it work with https 
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 app = flask.Flask(__name__)
 
@@ -23,22 +26,24 @@ def handle_verification():
 def handle_incoming_messages():
     data = flask.request.json
     sender = data['entry'][0]['messaging'][0]['sender']['id']
-    message = data['entry'][0]['messaging'][0]['message']['text']
+    #message = data['entry'][0]['messaging'][0]['message']['text']
     # redirect_uri = flask.url_for('oauth2callback', _external=True)
     # state = mbot.web_authorize(sender, redirect_uri)
     # # Store the state so the callback can verify the auth server response.
     # flask.session['state'] = state
+    print('sender psid:', sender)
+    #print(message)
 
-    auth_url = flask.url_for('authorize', user_psid=sender, _external=True, _scheme='https')
+    auth_url = flask.url_for('authorize', user_psid=sender, _external=True)
     mbot.send_login_button(sender, auth_url)
-    # mbot.reply(sender, message)
+    #mbot.reply(sender, message)
     # mbot.callSendAPI(sender, createLoginButton("https://www.google.com"))
     return "ok"
 
 
 @app.route('/authorize/<int:user_psid>')
 def authorize(user_psid):
-    redirect_uri = flask.url_for('oauth2callback', _external=True, _scheme='https')
+    redirect_uri = flask.url_for('oauth2callback', _external=True)
     authorization_url, state = mbot.new_authorize(user_psid, redirect_uri)
     # Store the state so the callback can verify the auth server response.
     flask.session['state'] = state
@@ -56,8 +61,8 @@ def oauth2callback():
     # Store credentials in the session.
     # ACTION ITEM: In a production app, you likely want to save these
     #              credentials in a persistent database instead.
-    flask.session['credentials'] = credentials
-    return "ok"
+    #
+    return flask.jsonify(credentials)
 
 
 if __name__ == "__main__":
