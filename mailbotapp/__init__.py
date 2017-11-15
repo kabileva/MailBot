@@ -34,9 +34,10 @@ def handle_incoming_messages():
     # flask.session['state'] = state
     print('sender psid:', sender)
     #print(message)
-
-    auth_url = flask.url_for('authorize', user_psid=sender, _external=True)
-    mbot.send_login_button(sender, auth_url)
+    chat_url = flask.url_for('chat', _external=True)
+    mbot.send_login_button(sender, chat_url)
+    #auth_url = flask.url_for('authorize', user_psid=sender, _external=True)
+    #mbot.send_login_button(sender, auth_url)
     #mbot.reply(sender, message)
     # mbot.callSendAPI(sender, createLoginButton("https://www.google.com"))
     return "ok"
@@ -66,7 +67,7 @@ def oauth2callback():
     return flask.jsonify(credentials)
 
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/chat', methods=['GET', 'POST'])
 def chat():
     form = ChatForm()
     flask.render_template('chat.html', form=form)
