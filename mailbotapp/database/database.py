@@ -22,11 +22,11 @@ def main():
     
     #_hashed_password = generate_password_hash(_password)
     value = None
+	
   #  cursor1.callproc('add_user', (3, '{"name": "Kate"}', 0))   
    # cursor1.callproc(" INSERT INTO tbl_users (user_FB_id, user_token) Values(5, {'Alish': 'loh'})")
-    cursor1.callproc('add_user', (7, '{"client_id": "931653727468-ncf4n4k90t8u0et2pj9808gn9h8rvkal.apps.googleusercontent.com","client_secret": "gKWtUvSK14mA6D9PmPDzXIlD","refresh_token": null,"scopes": "https://www.googleapis.com/auth/gmail.readonly","token": "ya29.GlsBBYeiZiDtnS5aomiDd7SnIGImEh_-SLJHow2RDRD8Ro3VEJLY_0aGPSszEZPOXB6JnFj6-wHJ_BJfmaule0LldrG5Gt0JPNP-DqTNjWp8cbRub3652tgtX9Ye","token_uri": "https://accounts.google.com/o/oauth2/token"}', 0))
-    #cursor1.callproc(" INSERT INTO tbl_users (user_FB_id, user_token) Values (5, '{'client_id': '931653727468-ncf4n4k90t8u0et2pj9808gn9h8rvkal.apps.googleusercontent.com','client_secret': 'gKWtUvSK14mA6D9PmPDzXIlD','refresh_token': null,'scopes': 'https://www.googleapis.com/auth/gmail.readonly','token': 'ya29.GlsBBYeiZiDtnS5aomiDd7SnIGImEh_-SLJHow2RDRD8Ro3VEJLY_0aGPSszEZPOXB6JnFj6-wHJ_BJfmaule0LldrG5Gt0JPNP-DqTNjWp8cbRub3652tgtX9Ye','token_uri': 'https://accounts.google.com/o/oauth2/token'}') ")  
-    
+    unsent_emails = cursor1.callproc('get_unsent_emails',())
+    cursor1.callproc('add_user', (7, '{"client_id": "931653727468-ncf4n4k90t8u0et2pj9808gn9h8rvkal.apps.googleusercontent.com","client_secret": "gKWtUvSK14mA6D9PmPDzXIlD","refresh_token": null,"scopes": "https://www.googleapis.com/auth/gmail.readonly","token": "ya29.GlsBBYeiZiDtnS5aomiDd7SnIGImEh_-SLJHow2RDRD8Ro3VEJLY_0aGPSszEZPOXB6JnFj6-wHJ_BJfmaule0LldrG5Gt0JPNP-DqTNjWp8cbRub3652tgtX9Ye","token_uri": "https://accounts.google.com/o/oauth2/token"}', 0))    
 
     #cursor2.callproc('add_email',(1,1,'meeting',"Kate","what's up madafaka?",'2017-10-29 17:45:40'))
     #conn2.commit() # should be commited after add_user due to foreign key constrains
