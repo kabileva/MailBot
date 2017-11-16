@@ -1,6 +1,7 @@
+###################  Set UP #########################
 from flask import Flask, render_template, request
 from werkzeug import generate_password_hash, check_password_hash
-from flask.ext.mysql import MySQL
+from flaskext.mysql import MySQL
 
 app = Flask(__name__)
 
@@ -13,33 +14,65 @@ app.config['MYSQL_DATABASE_DB'] = 'mailbot'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
 
-@app.route("/")
-def main():
-    conn1 = mysql.connect()
-    cursor1 = conn1.cursor()
-    conn2 = mysql.connect()
-    cursor2 = conn2.cursor()
-    
-    #_hashed_password = generate_password_hash(_password)
-    value = None
+conn = mysql.connect()
+cursor = conn.cursor()
+###################  End Set UP #########################
+
+
+
+################## Functions ########################
+
+# fetches unsent emails. Should be used together with update_email_stats()
+def get_unsent_emails():
+    cursor.callproc('get_unsent_emails', args=())
+    data = cursor.fetchall()
+    conn.commit()
+    return data   # then rows in data can be accessed as "for row in data: <do smth>"		
+
+# after unsent emails have been fetched, it updates their statuses to "sent"
+def update_email_stats():    
+    cursor.callproc('update_email_stat', args=())
+    data = cursor.fetchall()
+    conn.commit()
+
+
+# fetches unsent replies. Should be used together with update_reply_stats()
+def get_unsent_replies():
+    cursor.callproc('get_unsent_replies', args=())
+    data = cursor.fetchall()
+    conn.commit()
+    return data   # then rows in data can be accessed as "for row in data: <do smth>" 
+
+# after unsent replies have been fetched, it updates their statuses to "sent"
+def update_reply_stats():
+    cursor.callproc('update_reply_stat', args=())
+    data = cursor.fetchall()
+    conn.commit()
+
+
+# example: add_email((1,1,'lunch',"Adil","what's up madafaka?",'2017-10-29 17:45:40', 0))
+def add_email(email): # email - tuple of arguments
+    cursor.callproc('add_email', email)
+    data = cursor.fetchall()
+    conn.commit()	
+
+
+def add_user(FB_id, token): # FB_id - int, token - JSON
+    cursor.callproc('add_user', (FB_id, token, 0))
+    data = cursor.fetchall()
+    conn.commit()
+
+
+def add_reply(reply): # reply - tuple of arguments. Works like add_email()
+    cursor.callproc('add_reply', email)
+    data = cursor.fetchall()
+    conn.commit()
+
+
+#add_user(8, '{"client_id": "931653727468-ncf4n4k90t8u0et2pj9808gn9h8rvkal.apps.googleusercontent.com","client_secret": "gKWtUvSK14mA6D9PmPDzXIlD","refresh_token": null,"scopes": "https://www.googleapis.com/auth/gmail.readonly","token": "ya29.GlsBBYeiZiDtnS5aomiDd7SnIGImEh_-SLJHow2RDRD8Ro3VEJLY_0aGPSszEZPOXB6JnFj6-wHJ_BJfmaule0LldrG5Gt0JPNP-DqTNjWp8cbRub3652tgtX9Ye","token_uri": "https://accounts.google.com/o/oauth2/token"}')    
+   
+ #_hashed_password = generate_password_hash(_password)
 	
-  #  cursor1.callproc('add_user', (3, '{"name": "Kate"}', 0))   
-   # cursor1.callproc(" INSERT INTO tbl_users (user_FB_id, user_token) Values(5, {'Alish': 'loh'})")
-    unsent_emails = cursor1.callproc('get_unsent_emails',())
-    cursor1.callproc('add_user', (7, '{"client_id": "931653727468-ncf4n4k90t8u0et2pj9808gn9h8rvkal.apps.googleusercontent.com","client_secret": "gKWtUvSK14mA6D9PmPDzXIlD","refresh_token": null,"scopes": "https://www.googleapis.com/auth/gmail.readonly","token": "ya29.GlsBBYeiZiDtnS5aomiDd7SnIGImEh_-SLJHow2RDRD8Ro3VEJLY_0aGPSszEZPOXB6JnFj6-wHJ_BJfmaule0LldrG5Gt0JPNP-DqTNjWp8cbRub3652tgtX9Ye","token_uri": "https://accounts.google.com/o/oauth2/token"}', 0))    
-
-    #cursor2.callproc('add_email',(1,1,'meeting',"Kate","what's up madafaka?",'2017-10-29 17:45:40'))
-    #conn2.commit() # should be commited after add_user due to foreign key constrains
-    data = cursor1.fetchall()
-    if len(data) is 0:
-       conn1.commit()
-     #  conn2.commit()
-       return "data has been successfully added!"
-    else:
-       conn2.commit()
-       return "data hasn't been added"
-    
-
-if __name__ == "__main__":
-    app.run()
+      
+   # cursor1.callproc('add_user', (7, '{"client_id": "931653727468-ncf4n4k90t8u0et2pj9808gn9h8rvkal.apps.googleusercontent.com","client_secret": "gKWtUvSK14mA6D9PmPDzXIlD","refresh_token": null,"scopes": "https://www.googleapis.com/auth/gmail.readonly","token": "ya29.GlsBBYeiZiDtnS5aomiDd7SnIGImEh_-SLJHow2RDRD8Ro3VEJLY_0aGPSszEZPOXB6JnFj6-wHJ_BJfmaule0LldrG5Gt0JPNP-DqTNjWp8cbRub3652tgtX9Ye","token_uri": "https://accounts.google.com/o/oauth2/token"}', 0))    
 

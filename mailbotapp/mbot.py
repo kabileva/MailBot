@@ -11,7 +11,7 @@ class Mbot(object):
         self.ACCESS_TOKEN = "EAAXuNBwZBG9kBAECVP64YldWTKZCJQSYQ5ZBpj1Pm2bWBZAradyU9xYHy7q66Yf4vZAHny0cWJQJNcqQ93ICHHJX7dJSqFUPGwpySZBOQtZCRlKn72JbYqYKPW8H70xdj2BLGS1BQ8DinSggoF2r6OlC3PIEEp8B2oUyLHs7iXHLgZDZD"
 #        self.VERIFY_TOKEN = "secret"
         self.SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
-# 	self.SCOPES = ['https://mail.google.com/']
+ 	#self.SCOPES = ['https://mail.google.com/']
         self.CLIENT_SECRETS_FILE = '/var/www/mailbotapp/mailbotapp/client_secret.json'
         self.user_psid = None
 
@@ -131,7 +131,6 @@ class Mbot(object):
                       {"template_type": "generic",
                        "elements":
                            [{"title": "Please login to your Gmail account",
-                             "subtitle": "Tap the button",
                              "buttons":
                                  [{"type": "web_url",
                                    "url": url,

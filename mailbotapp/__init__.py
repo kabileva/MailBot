@@ -34,10 +34,10 @@ def handle_incoming_messages():
     # flask.session['state'] = state
     print('sender psid:', sender)
     #print(message)
+    auth_url = flask.url_for('authorize', user_psid=sender, _external=True)
+    mbot.send_login_button(sender, auth_url)
     chat_url = flask.url_for('chat', _external=True)
     mbot.send_login_button(sender, chat_url)
-    #auth_url = flask.url_for('authorize', user_psid=sender, _external=True)
-    #mbot.send_login_button(sender, auth_url)
     #mbot.reply(sender, message)
     # mbot.callSendAPI(sender, createLoginButton("https://www.google.com"))
     return "ok"
@@ -64,7 +64,7 @@ def oauth2callback():
     # ACTION ITEM: In a production app, you likely want to save these
     #              credentials in a persistent database instead.
     #
-    return flask.jsonify(credentials)
+    return redirect_uri
 
 
 @app.route('/chat', methods=['GET', 'POST'])
