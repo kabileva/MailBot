@@ -33,8 +33,8 @@ def handle_incoming_messages():
     print('sender psid:', sender)
     # message = data['entry'][0]['messaging'][0]['message']['text']
     # print(message)
-    chat_url = flask.url_for('chat', _external=True)
-    mbot.send_login_button(sender, chat_url)
+    chat_url = flask.url_for('chat', user_psid=0, email_id=0, _external=True)
+    mbot.send_email_as_message(sender, 0, 'Bill Gates', 'I need your help')
     return "ok"
 
 
