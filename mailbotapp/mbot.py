@@ -29,7 +29,7 @@ class Mbot(object):
         return
 
     def send_email_as_message(self, user_psid, email_id, sender_name, subject):
-        chat_url = 'http://f9e26791.ngrok.io/chat/0/0'
+        chat_url = 'http://f9e26791.ngrok.io/chat/'+str(user_psid)+'/'+str(email_id)
         message = self.message_with_button(chat_url, 'Open', 'New email from '+sender_name, subject)
         self.send_message(user_psid, message)
         return
