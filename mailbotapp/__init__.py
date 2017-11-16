@@ -27,28 +27,24 @@ def handle_verification():
 def handle_incoming_messages():
     data = flask.request.json
     sender = data['entry'][0]['messaging'][0]['sender']['id']
-    #message = data['entry'][0]['messaging'][0]['message']['text']
-    # redirect_uri = flask.url_for('oauth2callback', _external=True)
-    # state = mbot.web_authorize(sender, redirect_uri)
-    # # Store the state so the callback can verify the auth server response.
-    # flask.session['state'] = state
+    if not mbot.check_authorized(sender):
+        auth_url = flask.url_for('authorize', user_psid=sender, _external=True)
+        mbot.send_login_button(sender, auth_url)
     print('sender psid:', sender)
-    #print(message)
+    # message = data['entry'][0]['messaging'][0]['message']['text']
+    # print(message)
     chat_url = flask.url_for('chat', _external=True)
     mbot.send_login_button(sender, chat_url)
-    #auth_url = flask.url_for('authorize', user_psid=sender, _external=True)
-    #mbot.send_login_button(sender, auth_url)
-    #mbot.reply(sender, message)
-    # mbot.callSendAPI(sender, createLoginButton("https://www.google.com"))
     return "ok"
 
 
 @app.route('/authorize/<int:user_psid>')
 def authorize(user_psid):
     redirect_uri = flask.url_for('oauth2callback', _external=True)
-    authorization_url, state = mbot.new_authorize(user_psid, redirect_uri)
+    authorization_url, state = mbot.authorize(redirect_uri)
     # Store the state so the callback can verify the auth server response.
     flask.session['state'] = state
+    flask.session['user_psid'] = user_psid
     return flask.redirect(authorization_url)
 
 
@@ -57,9 +53,10 @@ def oauth2callback():
     # Specify the state when creating the flow in the callback so that it can
     # verified in the authorization server response.
     state = flask.session['state']
+    user_psid = flask.session['user_psid']
     redirect_uri = flask.url_for('oauth2callback', _external=True)
     authorization_response = flask.request.url
-    credentials = mbot.oauth2callback(state, redirect_uri, authorization_response)
+    credentials = mbot.oauth2callback(user_psid, state, redirect_uri, authorization_response)
     # Store credentials in the session.
     # ACTION ITEM: In a production app, you likely want to save these
     #              credentials in a persistent database instead.
@@ -67,8 +64,8 @@ def oauth2callback():
     return flask.jsonify(credentials)
 
 
-@app.route('/chat', methods=['GET', 'POST'])
-def chat():
+@app.route('/chat/<int:user_psid>/<int:email_id>', methods=['GET', 'POST'])
+def chat(user_psid, email_id):
     form = ChatForm()
     return flask.render_template('chat.html', form=form)
 

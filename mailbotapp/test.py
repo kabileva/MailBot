@@ -50,7 +50,7 @@ while True:
 	print('checking on %d'%(time.time()))
 	subjects,after_time = access_gmail(creds,after_time)
 	for subject in subjects:
-		mbot.reply(psid, {"text":subject})
+		mbot.send_message(psid, {"text":subject})
 		print('sent on %d'%(time.time()))
 
 
