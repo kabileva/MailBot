@@ -64,7 +64,8 @@ def oauth2callback():
     # ACTION ITEM: In a production app, you likely want to save these
     #              credentials in a persistent database instead.
     #
-    return redirect_uri
+    return flask.jsonify(credentials)
+  #  return redirect_uri
 
 
 @app.route('/chat', methods=['GET', 'POST'])
