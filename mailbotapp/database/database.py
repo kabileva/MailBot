@@ -50,6 +50,18 @@ def update_reply_stats():
     conn.commit()
 
 
+# get a list of users with FB ids and tokens from the tbl_users
+# used as shown below
+def get_users():
+    cursor.callproc('get_users', args=())
+    data = cursor.fetchall()
+    conn.commit()
+    return data
+#users = get_users()
+#for user in users:
+#    print(user[0])         # user[0] - unique ID in the database. user[1] - FB_id. user[2] - token
+
+
 # example: add_email((1,1,'lunch',"Adil","what's up madafaka?",'2017-10-29 17:45:40', 0))
 def add_email(email): # email - tuple of arguments
     cursor.callproc('add_email', email)
@@ -64,9 +76,34 @@ def add_user(FB_id, token): # FB_id - int, token - JSON
 
 
 def add_reply(reply): # reply - tuple of arguments. Works like add_email()
-    cursor.callproc('add_reply', email)
+    cursor.callproc('add_reply', reply)
     data = cursor.fetchall()
     conn.commit()
+
+
+# returns true if a user with a given FB_id exists
+def user_exists(FB_id):
+    args = [FB_id]
+    cursor.callproc('user_exists', args)
+    data = cursor.fetchone()
+    if (data[0] == 0):
+	return False
+    else: 
+	return True
+
+
+def get_FB_id(user_id):
+    args = [user_id]
+    cursor.callproc('get_FB_id',args)
+    data = cursor.fetchone()
+    return data[1]
+
+
+def get_email(email_id):
+    args = [email_id]
+    cursor.callproc('get_email', args)
+    data = cursor.fetchone()
+    return data
 
 
 #add_user(8, '{"client_id": "931653727468-ncf4n4k90t8u0et2pj9808gn9h8rvkal.apps.googleusercontent.com","client_secret": "gKWtUvSK14mA6D9PmPDzXIlD","refresh_token": null,"scopes": "https://www.googleapis.com/auth/gmail.readonly","token": "ya29.GlsBBYeiZiDtnS5aomiDd7SnIGImEh_-SLJHow2RDRD8Ro3VEJLY_0aGPSszEZPOXB6JnFj6-wHJ_BJfmaule0LldrG5Gt0JPNP-DqTNjWp8cbRub3652tgtX9Ye","token_uri": "https://accounts.google.com/o/oauth2/token"}')    
@@ -74,5 +111,3 @@ def add_reply(reply): # reply - tuple of arguments. Works like add_email()
  #_hashed_password = generate_password_hash(_password)
 	
       
-   # cursor1.callproc('add_user', (7, '{"client_id": "931653727468-ncf4n4k90t8u0et2pj9808gn9h8rvkal.apps.googleusercontent.com","client_secret": "gKWtUvSK14mA6D9PmPDzXIlD","refresh_token": null,"scopes": "https://www.googleapis.com/auth/gmail.readonly","token": "ya29.GlsBBYeiZiDtnS5aomiDd7SnIGImEh_-SLJHow2RDRD8Ro3VEJLY_0aGPSszEZPOXB6JnFj6-wHJ_BJfmaule0LldrG5Gt0JPNP-DqTNjWp8cbRub3652tgtX9Ye","token_uri": "https://accounts.google.com/o/oauth2/token"}', 0))    
-

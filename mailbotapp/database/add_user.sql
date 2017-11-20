@@ -1,4 +1,3 @@
-
 CREATE DEFINER = root@localhost PROCEDURE add_user (
         IN FB_id BIGINT,
         IN token JSON,

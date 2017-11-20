@@ -1,7 +1,7 @@
 from __future__ import print_function
 import httplib2
 from googleapiclient.discovery import build
-from database.database import *
+#from database.database import *
 if __name__ == '__main__':
     if __package__ is None:
         import sys

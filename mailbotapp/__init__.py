@@ -34,7 +34,9 @@ def handle_incoming_messages():
     # message = data['entry'][0]['messaging'][0]['message']['text']
     # print(message)
     chat_url = flask.url_for('chat', user_psid=sender, email_id=0, _external=True)
-    mbot.send_email_as_message(sender, 0, 'Bill Gates', 'I need your help')
+    mbot.send_email_as_message(sender, 7, 'Bill Gates', 'I need your help')
+    #mbot.create_dummy_email(sender)
+    mbot.send_unsent_emails()
     return "ok"
 
 
@@ -66,8 +68,10 @@ def oauth2callback():
 
 @app.route('/chat/<int:user_psid>/<int:email_id>', methods=['GET', 'POST'])
 def chat(user_psid, email_id):
+    # TODO: make it security
     form = ChatForm()
-    return flask.render_template('chat.html', form=form, sender_name="Bill Gates", subject="I need your help", email_text="I'm short on cash. Can you lend me 500k?", action_url=flask.url_for('chat', user_psid=user_psid, email_id=email_id, _external=True))
+    sender_name, subject, text = mbot.get_email(email_id)
+    return flask.render_template('chat.html', form=form, sender_name=sender_name, subject=subject, email_text=text, action_url=flask.url_for('chat', user_psid=user_psid, email_id=email_id, _external=True))
 
 
 if __name__ == "__main__":
