@@ -10,6 +10,7 @@
 	<p>From: {{ sender_name }}</p>
 	<p>{{ subject }}</p>
 	<p>{{ email_text }}</p>
+    <p>{{ old_emails }}</p>
 	<textarea id="reply" placeholder="Type your Reply"></textarea>
 	<input type="submit" value="Send" />
         {{ form.csrf_token }}
@@ -18,7 +19,8 @@
 <style type="text/css">
 #reply {
     height: 600px;
-    font-size: xx-large;
+    max-height: 800px;
+    font-size: 70px;
 }
 p {
     font-size: xx-large;

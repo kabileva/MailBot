@@ -34,7 +34,7 @@ def handle_incoming_messages():
     # message = data['entry'][0]['messaging'][0]['message']['text']
     # print(message)
     chat_url = flask.url_for('chat', user_psid=sender, email_id=0, _external=True)
-    mbot.send_email_as_message(sender, 7, 'Bill Gates', 'I need your help')
+    mbot.send_email_as_message(sender, 1, 'Bill Gates', 'I need your help')
     #mbot.create_dummy_email(sender)
     mbot.send_unsent_emails()
     return "ok"
@@ -71,8 +71,13 @@ def chat(user_psid, email_id):
     # TODO: make it security
     form = ChatForm()
     sender_name, subject, text = mbot.get_email(email_id)
+    # get old emails from the given sender
+    #user_id, sender_id = mbot.get_user_sender(email_id)
+    #emails_old = mbot.old_emails(user_id, sender_id)
+    
     return flask.render_template('chat.html', form=form, sender_name=sender_name, subject=subject, email_text=text, action_url=flask.url_for('chat', user_psid=user_psid, email_id=email_id, _external=True))
 
 
 if __name__ == "__main__":
+    #print(get_user_id_and_sender_id_from_email_id(1))
     app.run()

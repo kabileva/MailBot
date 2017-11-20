@@ -1,61 +1,55 @@
-from __future__ import print_function
-import httplib2
-from googleapiclient.discovery import build
-#from database.database import *
 if __name__ == '__main__':
-    if __package__ is None:
-        import sys
-        from os import path
-        sys.path.append( path.dirname( path.dirname( path.abspath(__file__) ) ) )
-        from mbot import Mbot
-    else:
-        from .mbot import Mbot
-import sys  
-reload(sys)  
-sys.setdefaultencoding('utf-8')
-import time
+	if __package__ is None:
+		import sys
+		from os import path
+		sys.path.append( path.dirname( path.dirname( path.abspath(__file__) ) ) )
+		from mbot import Mbot
+		from gbot import Gbot
+	else:
+		from .mbot import Mbot	
+		from .gbot import Gbot
+gbot = Gbot()
 mbot = Mbot()
-#Kate's psid: sender psid: 835227646602037
-psid = 835227646602037
+#psid = 835227646602037
 import json
-cred_dict = json.load(open('/var/www/mailbotapp/mailbotapp/token.json'))
-cred_dict3 = {
-  "client_id": "931653727468-ncf4n4k90t8u0et2pj9808gn9h8rvkal.apps.googleusercontent.com", 
-  "client_secret": "gKWtUvSK14mA6D9PmPDzXIlD", 
-  "refresh_token": None, 
-  "scopes": "https://www.googleapis.com/auth/gmail.readonly", 
-  "token": "ya29.GlwEBfZKpyoD_k910Vbx5iDpPlTlcIa3VotFSOPPMBi2Rjd5ooYgNUUcQ7yqZj1PSzQpjSa1XbK6_ZG2zq16RCMo8e44v7s4CP70P3s0QKUM8m82cklYJ-u1363gJw", 
-  "token_uri": "https://accounts.google.com/o/oauth2/token"
-}
-count = 0
-#if(count<1):
-#	add_user(psid,json.dumps(cred_dict))
-#	count+=1
-n = 0
-def access_gmail(credentials, after_time):
-	GMAIL = build('gmail', 'v1', credentials=credentials, cache_discovery=False)
+import time
+from database.database import *
+sys.setdefaultencoding('utf-8')
 
-        query = 'is:unread AND after:%d'%(after_time)
-	threads = GMAIL.users().threads().list(userId='me', q = query).execute()
-        subjects = []
-	print(threads)
-	if not 'threads' in threads:
-            return subjects, time.time()
-	print(threads['threads'])
-        for thread in threads['threads']:
-	    print(thread['snippet'])
-	    subjects.append(thread['snippet'])
-            time_checked = time.time()
-        return subjects, time_checked
+users = get_users()
+users_list = []
+for user in users:
+	tmp = []
+	tmp.append(user[0])
+	tmp.append(user[1])
+	tmp.append(user[2])
+	tmp.append(time.time())
+	#[user_id,psid,token,time]
+	users_list.append(tmp)
+#after_time = time.time()
 
-creds = mbot.credentials_from_dict(cred_dict)
-after_time = time.time()
 while True:
-	print('checking after %d'%(after_time))
-	print('checking on %d'%(time.time()))
-	subjects,after_time = access_gmail(creds,after_time)
-	for subject in subjects:
-		mbot.send_message(psid, {"text":subject})
-		print('sent on %d'%(time.time()))
-
-
+#	print('checking after %d'%(after_time))
+#	print('checking on %d'%(time.time()))
+	for user in users_list:
+		user_id = user[0]
+		psid = user[1]
+		creds = mbot.credentials_from_dict(json.loads(user[2]))
+	#	print(creds)
+		gmail = gbot.access_gmail(creds)
+		emails_raw,user[3] = gbot.get_emails(user[3])
+	#	subjects,user[2] = access_gmail(creds,user[2])
+		for email_raw in emails_raw:
+			print(email_raw)
+			subject = gbot.get_subject(email_raw)
+			print(subject)
+			sender_name, sender_email = gbot.get_sender(email_raw)
+			print(sender_name, sender_email)
+			body = gbot.get_body(email_raw)
+			print(body)
+			email = (user_id,sender_email, subject, sender_name, body, '2017-10-29 17:45:40', 0)
+			print(email)
+			add_email(email)
+			
+			#mbot.send_message(psid, {"text":subject})
+	mbot.send_unsent_emails()

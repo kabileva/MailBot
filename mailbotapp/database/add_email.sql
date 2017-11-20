@@ -1,6 +1,6 @@
 CREATE DEFINER = root@localhost PROCEDURE add_email (
         IN recipient_id BIGINT,
-        IN sender_id BIGINT,
+        IN sender_id VARCHAR(45),
 	IN subject TEXT,
 	IN sender_name VARCHAR(45),
 	IN text TEXT,

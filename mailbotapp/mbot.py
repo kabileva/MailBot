@@ -43,7 +43,7 @@ class Mbot(object):
 	    user_id = row[1]
 	    fb_id = get_FB_id(user_id) # TODO: get fb_id from user id
 	    print(fb_id)
-	    fb_id = 1438669066252571
+	    #fb_id = 1438669066252571
 	    subject = row[3]
 	    sender_name = row[4]
 	    self.send_email_as_message(fb_id, email_id, sender_name, subject)
@@ -56,11 +56,12 @@ class Mbot(object):
 	return
 
     def get_email(self, email_id):
-	email = get_email(email_id)
-	sender_name = email[4]
-	subject = email[3]
-	text = email[5]
-	return sender_name, subject, text
+		email = get_email(email_id)
+		print(email)
+		sender_name = email[4]
+		subject = email[3]
+		text = email[5]
+		return sender_name, subject, text
 
     def send_login_button(self, user_psid, url):
         message = self.message_with_button(url, url_title='Gmail Login',
@@ -107,6 +108,16 @@ class Mbot(object):
         # TODO: save credentials in database
 	#add_user(user_psid, json.dumps(credentials))
         return
+    
+	#def get_user_sender(self, email_id):
+	#	email = get_email(email_id)
+	#	user_id = email[1]
+    #    sender_id = email[2]
+    #    return user_id, sender_id    
+    #print(get_user_id_and_sender_id_from_email_id(1))
+ 	
+	#def old_emails(self, user_id, sender_id):
+	#	return get_old_emails(user_id, sender_id)
 
     @staticmethod
     def credentials_to_dict(credentials):
