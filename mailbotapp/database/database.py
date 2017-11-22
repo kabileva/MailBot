@@ -24,9 +24,13 @@ cursor = conn.cursor()
 
 # fetches unsent emails. Should be used together with update_email_stats()
 def get_unsent_emails():
+#	conn = mysql.connect()
+#	cursor = conn.cursor()
     cursor.callproc('get_unsent_emails', args=())
     data = cursor.fetchall()
     conn.commit()
+  #  cursor.close()
+   # conn.close()
     return data   # then rows in data can be accessed as "for row in data: <do smth>"		
 
 # after unsent emails have been fetched, it updates their statuses to "sent"
@@ -38,16 +42,16 @@ def update_email_stats():
 
 # fetches unsent replies. Should be used together with update_reply_stats()
 def get_unsent_replies():
-    cursor.callproc('get_unsent_replies', args=())
-    data = cursor.fetchall()
-    conn.commit()
-    return data   # then rows in data can be accessed as "for row in data: <do smth>" 
+	cursor.callproc('get_unsent_replies', args=())
+	data = cursor.fetchall()
+	conn.commit()
+	return data   # then rows in data can be accessed as "for row in data: <do smth>" 
 
 # after unsent replies have been fetched, it updates their statuses to "sent"
 def update_reply_stats():
-    cursor.callproc('update_reply_stat', args=())
-    data = cursor.fetchall()
-    conn.commit()
+	cursor.callproc('update_reply_stat', args=())
+	data = cursor.fetchall()
+	conn.commit()
 
 
 # get a list of users with FB ids and tokens from the tbl_users
@@ -63,10 +67,10 @@ def get_users():
 
 
 # example: add_email((1,'olg@gmail.com','lunch',"Adil","what's up madafaka?",'2017-10-29 17:45:40', 0))
-def add_email(email): # email - tuple of arguments
-    cursor.callproc('add_email', email)
-    data = cursor.fetchall()
-    conn.commit()	
+def add_email(email): # email - tuple of arguments	
+	cursor.callproc('add_email', email)
+	data = cursor.fetchall()
+	conn.commit()	
 
 
 def add_user(FB_id, token): # FB_id - int, token - JSON
@@ -100,22 +104,25 @@ def get_FB_id(user_id):
 
 
 def get_email(email_id):
-    args = [email_id]
-    cursor.callproc('get_email', args)
-    data = cursor.fetchone()
-    return data
+    
+	args = [email_id]
+	cursor.callproc('get_email', args)
+	data = cursor.fetchone()
+	#cursor.close()
+	conn.commit()
+	return data
 
 
 # given user_id and sender_id, it fetches all old emails previously sent to the given user by the given recipient 
 def get_old_emails(user_id, sender_id):
-    args = [user_id, sender_id]
-    cursor.callproc('get_old_emails', args)
-    data = cursor.fetchall()
-    var = []
-    for email in data:
-        var.append(email[5])
-    result = '\n'.join(var)
-    return result
+	args = [user_id, sender_id]
+	cursor.callproc('get_old_emails', args)
+	data = cursor.fetchall()
+	var = []
+	for email in data:
+		var.append(email[5])
+	result = '\n'.join(var)
+	return result
 
 
 #print(get_old_emails(88, 'olg'))

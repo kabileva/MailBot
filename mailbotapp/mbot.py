@@ -31,33 +31,29 @@ class Mbot(object):
         return
 
     def send_email_as_message(self, user_psid, email_id, sender_name, subject):
-        chat_url = 'https://a0cc845f.ngrok.io/chat/'+str(user_psid)+'/'+str(email_id)
+        chat_url = 'https://bb27fa4e.ngrok.io/chat/'+str(user_psid)+'/'+str(email_id)
         message = self.message_with_button(chat_url, 'Open', 'New email from '+sender_name, subject)
         self.send_message(user_psid, message)
         return
 
     def send_unsent_emails(self):
-	data = get_unsent_emails()
-	for row in data:
-	    email_id = row[0]
-	    user_id = row[1]
-	    fb_id = get_FB_id(user_id) # TODO: get fb_id from user id
-	    print(fb_id)
-	    #fb_id = 1438669066252571
-	    subject = row[3]
-	    sender_name = row[4]
-	    self.send_email_as_message(fb_id, email_id, sender_name, subject)
-	update_email_stats()
-	return
-
-    def create_dummy_email(self, user_psid):
-	# Don't call this function, it has a bug
-	add_email((user_psid,1,'lunch',"Adil","what's up madafaka?",'2017-10-29 17:45:40', 0))
-	return
+		data = get_unsent_emails()
+		for row in data:
+		    email_id = row[0]
+		    user_id = row[1]
+		    fb_id = get_FB_id(user_id) # TODO: get fb_id from user id
+		    print(fb_id)
+		    #fb_id = 1438669066252571
+		    subject = row[3]
+		    sender_name = row[4]
+		    self.send_email_as_message(fb_id, email_id, sender_name, subject)
+		update_email_stats()
+		return
 
     def get_email(self, email_id):
+		print('id:',email_id)
 		email = get_email(email_id)
-		print(email)
+		print('email:', email)
 		sender_name = email[4]
 		subject = email[3]
 		text = email[5]

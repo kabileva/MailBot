@@ -3,6 +3,7 @@ import httplib2
 from googleapiclient.discovery import build
 #from database.database import *
 import base64
+import urllib
 import re
 from bs4 import BeautifulSoup
 if __name__ == '__main__':
@@ -45,11 +46,8 @@ class Gbot(object):
 		for header in email['payload']['headers']:
 			if header['name']=='From':
 				tmp = header['value'].split('<')
-				#print(tmp)
-				name = tmp[0]
-				print(str(name))
-				print(type(str(name)))
-				email = tmp[1].split('>')[0]
+				name = tmp[0].strip()
+				email = tmp[1].split('>')[0].strip()
                 return str(name), str(email)
 
 	def get_body(self, email):
@@ -60,7 +58,6 @@ class Gbot(object):
 		clean_one = part_data.replace("-","+") # decoding from Base64 to UTF-8
 		clean_one = clean_one.replace("_","/") # decoding from Base64 to UTF-8
 		clean_two = base64.b64decode (bytes(clean_one)) # decoding from Base64 to UTF-8
-		print(clean_two)
 #		soup = BeautifulSoup(clean_two , "lxml" )
 #		mssg_body = soup.body()
 #		print(type(mssg_body[0]))
@@ -68,4 +65,10 @@ class Gbot(object):
 		return str(clean_two)
 		# mssg_body is a readible form of message body
 		# depending on the end user's requirements, it can be further cleaned 
-		# using regex, beautiful soup, or any other method
+		# using regex, beautifiul soup, or any other method
+	def get_photo(self, email):
+		url = 'http://picasaweb.google.com/data/entry/api/user/'+email+'?alt=json'
+		response = urllib.urlopen(url)
+		data = json.loads(response.read())
+		photo = data['entry']['gphoto$thumbnail']['$t']
+		return str(photo)

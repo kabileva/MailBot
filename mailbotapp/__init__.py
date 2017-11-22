@@ -30,7 +30,7 @@ def handle_incoming_messages():
     if not mbot.check_authorized(sender):
         auth_url = flask.url_for('authorize', user_psid=sender, _external=True)
         mbot.send_login_button(sender, auth_url)
-    print('sender psid:', sender)
+#    print('sender psid:', sender)
     # message = data['entry'][0]['messaging'][0]['message']['text']
     # print(message)
     chat_url = flask.url_for('chat', user_psid=sender, email_id=0, _external=True)
@@ -68,13 +68,14 @@ def oauth2callback():
 
 @app.route('/chat/<int:user_psid>/<int:email_id>', methods=['GET', 'POST'])
 def chat(user_psid, email_id):
-    # TODO: make it security
+    # TODO: make it secure
     form = ChatForm()
     sender_name, subject, text = mbot.get_email(email_id)
-    # get old emails from the given sender
+	#lst = mbot.get_email(email_id)
+	#print('get_email returns:',lst)
+	#get old emails from the given sender
     #user_id, sender_id = mbot.get_user_sender(email_id)
     #emails_old = mbot.old_emails(user_id, sender_id)
-    
     return flask.render_template('chat.html', form=form, sender_name=sender_name, subject=subject, email_text=text, action_url=flask.url_for('chat', user_psid=user_psid, email_id=email_id, _external=True))
 
 
