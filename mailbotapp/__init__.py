@@ -77,26 +77,38 @@ def chat(user_psid, email_id):
     form = ChatForm()
     sender_name, subject, text = mbot.get_email(email_id)
     if flask.request.method == 'POST':
-        if form.validate() == False:
-            flask.flash('Message should not be empty.')
-            return flask.render_template('chat.html', form=form, sender_name=sender_name, subject=subject, email_text=text, action_url=flask.url_for('chat', user_psid=user_psid, email_id=email_id, _external=True))
+        if form.validate() is False:
+            flask.flash('All fields are required.')
+            return flask.render_template('reply.html', form=form, sender_name=sender_name, subject=subject,
+                                         email_text=text, action_url=flask.url_for('chat', user_psid=user_psid,
+                                                                                   email_id=email_id, _external=True))
         else:
             reply_text = form.message.data
             mbot.create_reply_email(('olg@gmail.com', 87, subject, 'Adil', reply_text,'august 11', 0))
-            return 'Email Sent'
-	lst = mbot.get_email(email_id)
-	#print('get_email returns:',lst)
-	#get old emails from the given sender
+            return flask.render_template('reply.html', success=True, _external=True)
+    lst = mbot.get_email(email_id)
+    #print('get_email returns:',lst)
+    #get old emails from the given sender
     user_id, sender_id = mbot.get_user_id_and_sender_id_from_email_id(email_id)
     emails_old = mbot.old_emails(user_id, sender_id)
-    return flask.render_template('chat.html', form=form, sender_name=sender_name, subject=subject, email_text=text, old_emails=emails_old, action_url=flask.url_for('chat', user_psid=user_psid, email_id=email_id, _external=True))
+    return flask.render_template('reply.html', form=form, sender_name=sender_name, subject=subject, email_text=text,
+                                 old_emails=emails_old, action_url=flask.url_for('chat', user_psid=user_psid,
+                                                                                 email_id=email_id, _external=True))
+
 
 @app.route('/newEmail/<int:user_psid>', methods=['GET', 'POST'])
 def newEmail(user_psid):
     form = NewEmailForm()
     if flask.request.method == 'POST':
-        return "Email Sent"
-    return flask.render_template('new_mail.html', form=form, action_url=flask.url_for('newEmail', user_psid=user_psid, _external=True))
+        if form.validate() is False:
+            flask.flash('All fields are required.')
+            return flask.render_template('new_email.html', form=form,
+                                         action_url=flask.url_for('newEmail', user_psid=user_psid, _external=True))
+        else:
+            # TODO: create email
+            return flask.render_template('new_email.html', success=True, _external=True)
+    return flask.render_template('new_email.html', form=form,
+                                 action_url=flask.url_for('newEmail', user_psid=user_psid, _external=True))
 
 if __name__ == "__main__":
     #print(get_user_id_and_sender_id_from_email_id(1))

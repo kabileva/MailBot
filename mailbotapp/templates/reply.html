@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+
+{% block content %}
+  <h2>{{ sender_name }}</h2>
+
+  {% if success %}
+    <p>Your reply has been sent.</p>
+  
+  {% else %}
+    <p>From: {{ sender_name }}</p>
+	<p>{{ subject }}</p>
+	<p>{{ email_text }}</p>
+    <p>{{ old_emails }}</p>
+
+    {% for message in form.message.errors %}
+      <div class="flash">{{ message }}</div>
+    {% endfor %}
+    
+    <form action={{ action_url }} method=post>
+      {{ form.csrf_token }}
+      
+      {{ form.message.label }}
+      {{ form.message }}
+      
+      {{ form.submit }}
+    </form>
+  
+  {% endif %}
+{% endblock %} 
