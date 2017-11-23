@@ -1,15 +1,15 @@
 CREATE DEFINER = root@localhost PROCEDURE add_reply (
-        IN recipient_id BIGINT,
+        IN recipient_id VARCHAR(45),
         IN sender_id BIGINT,
-	IN subject TEXT,
-	IN sender_name VARCHAR(45),
-	IN text TEXT,
-	IN date_time DATETIME,
-	IN sent INT
+	    IN subject TEXT,
+	    IN sender_name VARCHAR(45),
+	    IN text TEXT,
+	    IN date_time DATETIME,
+	    IN sent INT
 )
         insert into tbl_emails
         (
-		reply_recipient_id,
+        reply_recipient_id,
 		reply_sender_id,
 		reply_subject,
 		reply_sender_name,

@@ -5,7 +5,8 @@ CREATE DEFINER = root@localhost PROCEDURE add_email (
 	IN sender_name VARCHAR(45),
 	IN text TEXT,
 	IN date_time DATETIME,
-	IN sent INT
+	IN sent INT,
+    IN photo VARCHAR(45)
 )
         insert into tbl_emails
         (
@@ -15,7 +16,8 @@ CREATE DEFINER = root@localhost PROCEDURE add_email (
 		email_sender_name,
 		email_text,
 		email_date_time,
-		email_sent
+		email_sent,
+		email_photo
         )
         values
 	(
@@ -25,6 +27,7 @@ CREATE DEFINER = root@localhost PROCEDURE add_email (
 		sender_name,
 		text,
 		date_time,
-		sent
+		sent,
+		photo
         );
     

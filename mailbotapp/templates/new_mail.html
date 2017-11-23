@@ -7,16 +7,12 @@
 <body>
 <div class="form-style-6">
     <form action={{ action_url }} method="post">
-	<p>From: {{ sender_name }}</p>
-	<p>{{ subject }}</p>
-	<p>{{ email_text }}</p>
-    <p>{{ old_emails }}</p>
+    <p>From: {{ sender_name }}</p>
+    <p>{{ subject }}</p>
+    <p>{{ email_text }}</p>
     {% for message in get_flashed_messages() %}
         <div class="flash">{{ message }}</div>
     {% endfor %}
-	{{ form.message.label }}
-	{{ form.message }}
-	{{ form.submit }}
     {{ form.csrf_token }}
     </form>
 </div>
@@ -58,7 +54,7 @@ input {
 .form-style-6 input[type="time"],
 .form-style-6 input[type="url"],
 .form-style-6 textarea,
-.form-style-6 select 
+.form-style-6 select
 {
     -webkit-transition: all 0.30s ease-in-out;
     -moz-transition: all 0.30s ease-in-out;
@@ -103,7 +99,7 @@ input {
     border-bottom: 2px solid #30C29E;
     border-top-style: none;
     border-right-style: none;
-    border-left-style: none;    
+    border-left-style: none;
     color: #fff;
 }
 .form-style-6 input[type="submit"]:hover,

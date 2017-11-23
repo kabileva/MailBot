@@ -37,7 +37,7 @@ while True:
 			sender_name, sender_email = gbot.get_sender(email_raw)
 			body = gbot.get_body(email_raw)
 			photo = gbot.get_photo(sender_email)
-			email = (user_id,sender_email, subject, sender_name, body, '2017-10-29 17:45:40', 0)
+			email = (user_id,sender_email, subject, sender_name, body, '2017-10-29 17:45:40', 0,photo)
 			add_email(email)
 			
 	mbot.send_unsent_emails()

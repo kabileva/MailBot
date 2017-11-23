@@ -1,19 +1,12 @@
 from __future__ import print_function
 import httplib2
 from googleapiclient.discovery import build
-#from database.database import *
+from database.database import *
 import base64
 import urllib
 import re
 from bs4 import BeautifulSoup
-if __name__ == '__main__':
-    if __package__ is None:
-        import sys
-        from os import path
-        sys.path.append( path.dirname( path.dirname( path.abspath(__file__) ) ) )
-        from mbot import Mbot
-    else:
-        from .mbot import Mbot
+from mbot import Mbot
 import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -66,9 +59,22 @@ class Gbot(object):
 		# mssg_body is a readible form of message body
 		# depending on the end user's requirements, it can be further cleaned 
 		# using regex, beautifiul soup, or any other method
-	def get_photo(self, email):
-		url = 'http://picasaweb.google.com/data/entry/api/user/'+email+'?alt=json'
+	def get_photo(self, email_addr):
+		url = 'http://picasaweb.google.com/data/entry/api/user/'+email_addr+'?alt=json'
 		response = urllib.urlopen(url)
 		data = json.loads(response.read())
 		photo = data['entry']['gphoto$thumbnail']['$t']
 		return str(photo)
+
+	def send_email(self,sender_psid, receiver_email,subject, email_text):
+		mbot = Mbot()
+		#sender = get_user(sender_psid)
+		sender_token = mbot.credentials_from_dict(json.loads('/var/www/mailbotapp/mailbotapp/token.json'))
+		#sender_token = mbot.credentials_from_dict(json.loads(sender[2]))
+		self.access_gmail(sender_token)
+		message = MIMEText(email_text)
+		message['to']= receiver_email
+		message['from'] = sender_email	
+		message['subject'] = subject
+		email = {'raw': base64.urlsafe_b64encode(message.as_string())}
+		self.gmail.users().messages().send(userId='me', body=email).execute()   	

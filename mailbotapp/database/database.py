@@ -65,8 +65,7 @@ def get_users():
 #for user in users:
 #    print(user[0])         # user[0] - unique ID in the database. user[1] - FB_id. user[2] - token
 
-
-# example: add_email((1,'olg@gmail.com','lunch',"Adil","what's up madafaka?",'2017-10-29 17:45:40', 0))
+# example: add_email((1,'olg@gmail.com','lunch',"Adil","what's up?",'2017-10-29 17:45:40', 0, 'www/img.com'))
 def add_email(email): # email - tuple of arguments	
 	cursor.callproc('add_email', email)
 	data = cursor.fetchall()
@@ -83,6 +82,7 @@ def add_reply(reply): # reply - tuple of arguments. Works like add_email()
     cursor.callproc('add_reply', reply)
     data = cursor.fetchall()
     conn.commit()
+#add_reply(('olg@gmail.com', 87, 'subject', 'Adil', 'reply_text','2017-10-29 17:45:40', 0))
 
 
 # returns true if a user with a given FB_id exists
@@ -101,6 +101,13 @@ def get_FB_id(user_id):
     cursor.callproc('get_FB_id',args)
     data = cursor.fetchone()
     return data[1]
+
+
+def get_user_id(FB_id):
+	args = [FB_id]
+	cursor.callproc('get_user_id', args)
+	data = cursor.fetchone()
+	return data[0]
 
 
 def get_email(email_id):

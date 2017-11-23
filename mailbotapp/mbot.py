@@ -6,9 +6,9 @@ from googleapiclient.discovery import build
 import requests
 import argparse
 import json
-from database.database import add_user, get_unsent_emails, update_email_stats, user_exists, get_FB_id, get_email, add_email
+from database.database import add_user, add_reply, get_unsent_emails, update_email_stats, user_exists, get_FB_id, get_email, add_email, get_old_emails
 
-
+#add_reply(('olg@gmail.com', 87, subject, 'Adil', reply_text,'august 11', 0))
 class Mbot(object):
     def __init__(self):
         self.ACCESS_TOKEN = "EAAXuNBwZBG9kBAECVP64YldWTKZCJQSYQ5ZBpj1Pm2bWBZAradyU9xYHy7q66Yf4vZAHny0cWJQJNcqQ93ICHHJX7dJSqFUPGwpySZBOQtZCRlKn72JbYqYKPW8H70xdj2BLGS1BQ8DinSggoF2r6OlC3PIEEp8B2oUyLHs7iXHLgZDZD"
@@ -16,6 +16,7 @@ class Mbot(object):
         #self.SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
         self.SCOPES = ['https://mail.google.com/']
         self.CLIENT_SECRETS_FILE = '/var/www/mailbotapp/mailbotapp/client_secret.json'
+        self.base_url = 'https://a0ddbefd.ngrok.io/'
 
     def send_text(self, user_psid, text):
         self.send_message(user_psid, {"text": text})
@@ -31,8 +32,9 @@ class Mbot(object):
         return
 
     def send_email_as_message(self, user_psid, email_id, sender_name, subject):
-        chat_url = 'https://bb27fa4e.ngrok.io/chat/'+str(user_psid)+'/'+str(email_id)
-        message = self.message_with_button(chat_url, 'Open', 'New email from '+sender_name, subject)
+        chat_url = self.base_url + 'chat/'+str(user_psid)+'/'+str(email_id)
+        new_email_url = self.base_url + 'newEmail/' + str(user_psid)
+        message = Mbot.message_with_button2(new_email_url, 'New Email', chat_url, 'Open and Reply', sender_name+": "+subject)
         self.send_message(user_psid, message)
         return
 
@@ -100,20 +102,26 @@ class Mbot(object):
         self.save_credentials(user_psid, credentials)
         return credentials
 
+    def create_email(self, user_psid, recipient_email, subject, body):
+        return
+
+    def create_reply_email(self, reply):
+        add_reply(reply)
+        return 
+
     def save_credentials(self, user_psid, credentials):
         # TODO: save credentials in database
-	#add_user(user_psid, json.dumps(credentials))
+        add_user(user_psid, json.dumps(credentials))
         return
     
-	#def get_user_sender(self, email_id):
-	#	email = get_email(email_id)
-	#	user_id = email[1]
-    #    sender_id = email[2]
-    #    return user_id, sender_id    
+    def get_user_id_and_sender_id_from_email_id(self, email_id):
+        email = get_email(email_id)
+        user_id = email[1]
+        sender_id = email[2]
+        return user_id, sender_id    
     #print(get_user_id_and_sender_id_from_email_id(1))
- 	
-	#def old_emails(self, user_id, sender_id):
-	#	return get_old_emails(user_id, sender_id)
+    def old_emails(self, user_id, sender_id):
+        return get_old_emails(user_id, sender_id)
 
     @staticmethod
     def credentials_to_dict(credentials):
@@ -151,6 +159,34 @@ class Mbot(object):
                                    "webview_height_ratio": "tall",
                                    "messenger_extensions": False,
                                    "webview_share_button": "hide"}]
+                             }]
+                       }
+                  }
+             }
+        return response
+
+    @staticmethod
+    def message_with_button2(url1, url_title1, url2, url_title2, message_title):
+        response = \
+            {"attachment":
+                 {"type": "template",
+                  "payload":
+                      {"template_type": "generic",
+                       "elements":
+                           [{"title": message_title,
+                             "buttons":
+                                 [{"type": "web_url",
+                                   "url": url1,
+                                   "title": url_title1,
+                                   "webview_height_ratio": "tall",
+                                   "messenger_extensions": False,
+                                   "webview_share_button": "hide"},
+                                 {"type": "web_url",
+                                  "url": url2,
+                                  "title": url_title2,
+                                  "webview_height_ratio": "tall",
+                                  "messenger_extensions": False,
+                                  "webview_share_button": "hide"}]
                              }]
                        }
                   }
