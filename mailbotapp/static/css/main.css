@@ -15,102 +15,50 @@ header {
   margin-bottom: 10px;
 }
 
-header h1.logo {
-  margin: 0;
-  font-size: 1.7em;
-  color: #fff;
-  text-transform: uppercase;
-  float: left;
-}
-
-header h1.logo:hover {
-  color: #fff;
-  text-decoration: none;
-}
-
-/* Center the body content */
-
 .container {
-  width: 940px;
+  max-width: 640px;
   margin: 0 auto;
 }
 
-div.jumbo {
-  padding: 10px 0 30px 0;
-  background-color: #eeeeee;
-  -webkit-border-radius: 6px;
-     -moz-border-radius: 6px;
-          border-radius: 6px;
-}
-
 h2 {
-  font-size: 3em;
-  margin-top: 40px;
+  font-size: xx-large;
+  margin-top: 10px;
   text-align: center;
   letter-spacing: -2px;
 }
 
-h3 {
-  font-size: 1.7em;
-  font-weight: 100;
-  margin-top: 30px;
-  text-align: center;
-  letter-spacing: -1px;
-  color: #999;
-}
-
 /* Display navigation links inline */
-
-.menu {
-  float: right;
-  margin-top: 8px;
-}
-
-.menu li {
-  display: inline;
-}
-
-.menu li + li {
-  margin-left: 35px;
-}
-
-.menu li a {
-  color: #999;
-  text-decoration: none;
-}
 
 /* Contact form */
 form label {
-  font-size: 1.2em;
+  font-size: large;
   font-weight: bold;
   display: block;
-  padding: 10px 0;
+  padding: 10px;
 }
 
 form input#name,
 form input#email,
 form input#subject {
-  width: 400px;
+  width: 100%;
   background-color: #fafafa;
   -webkit-border-radius: 3px;
      -moz-border-radius: 3px;
           border-radius: 3px;
   border: 1px solid #cccccc;
-  padding: 5px;
-  font-size: 1.1em;
+  font-size: large;
 }
 
 form textarea#message {
-  width: 500px;
-  height: 100px;
+  width: 100%;
+  height: 400px;
   background-color: #fafafa;
   -webkit-border-radius: 3px;
      -moz-border-radius: 3px;
           border-radius: 3px;
   border: 1px solid #cccccc;
   margin-bottom: 10px;
-  padding: 5px;
-  font-size: 1.1em;
+  font-size: large;
 }
 
 form input#submit {
@@ -119,7 +67,9 @@ form input#submit {
      -moz-border-radius: 3px;
           border-radius: 3px;
   border:1px solid #d8d8d8;
-  padding: 10px;
+  width: 100%;
+  height: 100px;
+  font-size: large;
   font-weight:bold;
   text-align: center;
   color: #000000;
@@ -148,5 +98,41 @@ form input#submit:hover{
 .flash {
   background-color: #FBB0B0;
   padding: 10px;
-  width: 400px;
+  width: 300px;
+}
+
+.chat
+{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.chat li
+{
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px dotted #B3A9A9;
+}
+
+.chat li.left .chat-body
+{
+    margin-left: 60px;
+}
+
+.chat li.right .chat-body
+{
+    margin-right: 60px;
+}
+
+
+.chat li .chat-body p
+{
+    margin: 0;
+    color: #777777;
+}
+
+.panel .slidedown .glyphicon, .chat .glyphicon
+{
+    margin-right: 5px;
 }

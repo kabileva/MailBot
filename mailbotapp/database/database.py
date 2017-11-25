@@ -107,7 +107,7 @@ def get_user_id(FB_id):
 	args = [FB_id]
 	cursor.callproc('get_user_id', args)
 	data = cursor.fetchone()
-	return data[0]
+	return data
 
 
 def get_email(email_id):
