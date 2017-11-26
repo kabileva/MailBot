@@ -1,19 +1,23 @@
 from __future__ import print_function
 import flask
 from .mbot import Mbot
+from .gbot import Gbot
+from werkzeug.utils import secure_filename
 from .forms import ChatForm, NewEmailForm
 import os
+import time
 # TODO: make it work with https 
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 app = flask.Flask(__name__)
 
 mbot = Mbot()
+gbot = Gbot()
 
 
 # @app.route('/')
 # def check_server():
-#	return 'ok'
+#   return 'ok'
 
 @app.route('/', methods=['GET'])
 def handle_verification():
@@ -106,10 +110,23 @@ def newEmail(user_psid):
                                          action_url=flask.url_for('newEmail', user_psid=user_psid, _external=True))
         else:
             # TODO: create email
+            attach = form.attachment.data
+            filename = None
+            print(attach)
+            if attach is not None:
+                filename = secure_filename(attach.filename)
+                filename = '/var/www/mailbotapp/uploads/' + str(user_psid) + '_' + str(time.time()) + '_' + filename
+                attach.save(filename)
+            gbot.send_email(user_psid, form.email.data, form.subject.data, form.message.data, filename)
             return flask.render_template('new_email.html', success=True, _external=True)
     return flask.render_template('new_email.html', form=form,
                                  action_url=flask.url_for('newEmail', user_psid=user_psid, _external=True))
 
+@app.route('/attachment/<path:path>', methods=['GET'])
+def get_attachment(path):
+    return flask.send_from_directory('/var/www/mailbotapp/uploads/', path, as_attachment=True)
+
 if __name__ == "__main__":
     #print(get_user_id_and_sender_id_from_email_id(1))
     app.run()
+

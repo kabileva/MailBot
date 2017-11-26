@@ -6,7 +6,7 @@ from googleapiclient.discovery import build
 import requests
 import argparse
 import json
-from database.database import add_user, add_reply, get_unsent_emails, update_email_stats, user_exists, get_FB_id, get_email, add_email, get_old_emails
+from database.database import add_user, get_unsent_emails, update_email_stats, user_exists, get_FB_id, get_email, add_email, get_old_emails
 
 #add_reply(('olg@gmail.com', 87, subject, 'Adil', reply_text,'august 11', 0))
 class Mbot(object):
@@ -105,9 +105,9 @@ class Mbot(object):
     def create_email(self, user_psid, recipient_email, subject, body):
         return
 
-    def create_reply_email(self, reply):
-        add_reply(reply)
-        return 
+ #   def create_reply_email(self, reply):
+  #      add_reply(reply)
+   #     return 
 
     def save_credentials(self, user_psid, credentials):
         # TODO: save credentials in database
@@ -120,8 +120,45 @@ class Mbot(object):
         sender_id = email[2]
         return user_id, sender_id    
     #print(get_user_id_and_sender_id_from_email_id(1))
-    def old_emails(self, user_id, sender_id):
-        return get_old_emails(user_id, sender_id)
+    def get_old_emails(self, user_id, sender_id):
+        old_emails =  get_old_emails(user_id, sender_id)
+        html = ""
+        for i in range(0, old_emails.length - 1):
+         """ <li class="left clearfix">
+                  <span class="chat-img pull-left">
+                      <img src=%s alt="User Avatar" class="img-circle" />
+                  </span>
+                  <div class=\"chat-body clearfix">
+                      <div class="header">
+                          <strong class="primary-font">%s</strong> <small class="pull-right text-muted">
+                          <span class="glyphicon glyphicon-time"></span>%s</small>
+                      </div>
+                      <p>
+                          %s
+                      </p>
+                  </div>
+              </li> """
+
+    
+            
+    
+    # given an email id it returns the whole chain of emails in the current conversation. Returns an array of emails
+    def get_conversation_history(email_id):
+        conversation_history = []
+        this_email = get_email(email_id)    
+        next_email_id = this_email[9]  #= email_prev_email_id
+        conversation_history.append(this_email)
+        while (next_email_id != -1):
+            this_email = get_email(next_email_id)
+            conversation_history.append(this_email)
+            next_email_id = this_email[9]
+       # return conversation_history
+       # just for test:
+        texts = []
+        for email in conversation_history:
+            texts.append(email[5])
+        result = '\n'.join(texts)
+        return result
 
     @staticmethod
     def credentials_to_dict(credentials):

@@ -41,17 +41,17 @@ def update_email_stats():
 
 
 # fetches unsent replies. Should be used together with update_reply_stats()
-def get_unsent_replies():
-	cursor.callproc('get_unsent_replies', args=())
-	data = cursor.fetchall()
-	conn.commit()
-	return data   # then rows in data can be accessed as "for row in data: <do smth>" 
+#def get_unsent_replies():
+#	cursor.callproc('get_unsent_replies', args=())
+#	data = cursor.fetchall()
+#	conn.commit()
+#	return data   # then rows in data can be accessed as "for row in data: <do smth>" 
 
 # after unsent replies have been fetched, it updates their statuses to "sent"
-def update_reply_stats():
-	cursor.callproc('update_reply_stat', args=())
-	data = cursor.fetchall()
-	conn.commit()
+#def update_reply_stats():
+#	cursor.callproc('update_reply_stat', args=())
+#	data = cursor.fetchall()
+#	conn.commit()
 
 
 # get a list of users with FB ids and tokens from the tbl_users
@@ -78,10 +78,10 @@ def add_user(FB_id, token): # FB_id - int, token - JSON
     conn.commit()
 
 
-def add_reply(reply): # reply - tuple of arguments. Works like add_email()
-    cursor.callproc('add_reply', reply)
-    data = cursor.fetchall()
-    conn.commit()
+#def add_reply(reply): # reply - tuple of arguments. Works like add_email()
+ #   cursor.callproc('add_reply', reply)
+  #  data = cursor.fetchall()
+   # conn.commit()
 #add_reply(('olg@gmail.com', 87, 'subject', 'Adil', 'reply_text','2017-10-29 17:45:40', 0))
 
 
@@ -125,11 +125,11 @@ def get_old_emails(user_id, sender_id):
 	args = [user_id, sender_id]
 	cursor.callproc('get_old_emails', args)
 	data = cursor.fetchall()
-	var = []
-	for email in data:
-		var.append(email[5])
-	result = '\n'.join(var)
-	return result
+	#var = []
+	#for email in data:
+	#	var.append(email[5])
+	#result = '\n'.join(var)
+	return data
 
 
 #print(get_old_emails(88, 'olg'))

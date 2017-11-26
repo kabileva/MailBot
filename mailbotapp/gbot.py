@@ -23,7 +23,7 @@ class Gbot(object):
     
     def access_gmail(self,credentials):
         self.gmail = build('gmail', 'v1', credentials=credentials, cache_discovery=False)
-    
+        print(self.gmail) 
     def get_emails(self, after_time):
         query = 'is:unread AND after:%d'%(after_time)
         threads = self.gmail.users().messages().list(userId='me', q = query).execute()
@@ -53,21 +53,45 @@ class Gbot(object):
                 return str(name), str(email)
 
     def get_body(self, email):
+        
+        print(email)
         mssg_parts = email['payload']['parts'] # fetching the message parts
-        part_one  = mssg_parts[0] # fetching first element of the part 
-        part_body = part_one['body'] # fetching body of the message
-        part_data = part_body['data'] # fetching data from the body
-        clean_one = part_data.replace("-","+") # decoding from Base64 to UTF-8
-        clean_one = clean_one.replace("_","/") # decoding from Base64 to UTF-8
-        clean_two = base64.b64decode (bytes(clean_one)) # decoding from Base64 to UTF-8
-#       soup = BeautifulSoup(clean_two , "lxml" )
-#       mssg_body = soup.body()
-#       print(type(mssg_body[0]))
-#       return mssg_body[0]
-        return str(clean_two)
-        # mssg_body is a readible form of message body
-        # depending on the end user's requirements, it can be further cleaned 
-        # using regex, beautifiul soup, or any other method
+        withAtt=False
+        if email['payload']['mimeType']=='multipart/mixed':
+            withAtt = True
+        text = ''
+        for part in mssg_parts:
+            if 'value'=='text/plain':
+                part_one=part
+                part_body = part_one['body'] # fetching body of the message
+                part_data = part_body['data'] # fetching data from the body
+                clean_one = part_data.replace("-","+") # decoding from Base64 to UTF-8
+                clean_one = clean_one.replace("_","/") # decoding from Base64 to UTF-8
+                clean_two = base64.b64decode (bytes(clean_one)) # decoding from Base64 to UTF-8
+                text = str(clean_two), withAtt
+        return text,withAtt
+    
+    #OUTPUT:[(file_name, byte_data),(..)...]       
+    def get_attachments(self,email):
+        msg_id = email['id']
+        
+        msg = self.gmail.users().messages().get(userId='me', id = msg_id).execute()
+        files_data = []
+        for part in msg['payload']['parts']:
+            newvar = part['body']
+            if 'attachmentId' in newvar:      
+                att_id = newvar['attachmentId']
+                att = self.gmail.users().messages().attachments().get(userId='me', messageId=msg_id, id=att_id).execute()
+                data = att['data']
+                file_data = part['filename'],base64.urlsafe_b64decode(data.encode('UTF-8'))
+                print(part['filename'])
+
+                files_data.append(file_data)
+        return files_data
+    def data_to_file(self,file_data):
+        name = file_data[0]
+        data = file_data[1]
+        
     def get_photo(self, email_addr):
         url = 'http://picasaweb.google.com/data/entry/api/user/'+email_addr+'?alt=json'
         response = urllib.urlopen(url)
@@ -85,7 +109,7 @@ class Gbot(object):
         message['to']= receiver_email
         message['subject'] = subject
         message.attach(MIMEText(email_text, 'plain'))
-        attachment = '/var/www/mailbotapp/mailbotapp/token.json'
+        #attachment = '/var/www/mailbotapp/mailbotapp/token.json'
         if not attachment==None:
             att_name = os.path.split(attachment)[1]
             att_file = open(attachment, 'rb')
