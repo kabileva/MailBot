@@ -34,11 +34,23 @@ class Mbot(object):
         return
 
     def send_email_as_message(self, user_psid, email_id, sender_name, subject):
-        chat_url = self.base_url + 'chat/'+str(user_psid)+'/'+str(email_id)
+        chat_url = self.base_url + 'chat/'+str(user_psid)+'/'+str(email_id) + '#email' + str(email_id)
         new_email_url = self.base_url + 'newEmail/' + str(user_psid)
         message = Mbot.message_with_button2(new_email_url, 'New Email', chat_url, 'Open and Reply', sender_name+": "+subject)
         self.send_message(user_psid, message)
         return
+
+    def send_welcome(self, user_psid):
+        new_email_url = self.base_url + 'newEmail/' + str(user_psid)
+        message = Mbot.message_with_button(new_email_url, 'New Email', 'Authorization went fine. Thank you! You can compose new email using this button. Once you receive an email, you will see it here.')
+        self.send_message(user_psid, message)
+        return
+
+    def send_instructions(self, user_psid):
+        new_email_url = self.base_url + 'newEmail/' + str(user_psid)
+        message = Mbot.message_with_button(new_email_url, 'New Email', "You can compose new email using this button. Once you receive an email, you will see it here. You can search for email conversation by typing 'search <email or name>'")
+        self.send_message(user_psid, message)
+        return 
 
     def send_unsent_emails(self):
 		data = get_unsent_emails()
@@ -99,7 +111,7 @@ class Mbot(object):
         # Store credentials in the session.
         # ACTION ITEM: In a production app, you likely want to save these
         #              credentials in a persistent database instead.
-        self.send_message(user_psid, {"text": 'Authorization went fine. Thank you!'})
+        self.send_welcome(user_psid)
         credentials = Mbot.credentials_to_dict(flow.credentials)
         self.save_credentials(user_psid, credentials)
         return credentials
@@ -132,9 +144,9 @@ class Mbot(object):
         for i in range(0, len(old_emails)):
             if (old_emails[i][9] == -1):
                 #print('was sent to us')
-                html.append("<li class='left clearfix'> <span class='chat-img pull-left'><img src={photo} alt='User Avatar' width='50' height='50' class='img-circle' /></span><div class='chat-body clearfix'><div class='header'><strong class='primary-font'>{name}</strong> <small class='pull-right text-muted'><span class='glyphicon glyphicon-time'></span>{date}</small></div>".format(photo = old_emails[i][8], name = old_emails[i][4], date = old_emails[i][6]))
+                html.append("<li id='email{em_id}' class='left clearfix'> <span class='chat-img pull-left'><img src={photo} alt='User Avatar' width='50' height='50' class='img-circle' /></span><div class='chat-body clearfix'><div class='header'><strong class='primary-font'>{name}</strong> <small class='pull-right text-muted'><span class='glyphicon glyphicon-time'></span>{date}</small></div>".format(em_id=old_emails[i][0], photo = old_emails[i][8], name = old_emails[i][4], date = old_emails[i][6]))
             else: 
-                html.append("<li class='right clearfix'> <span class='chat-img pull-right'><img src={photo} alt='User Avatar' width='50' height='50' class='img-circle' /></span><div class='chat-body clearfix'><div class='header'><small class='text-muted'><span class='glyphicon glyphicon-time'></span>{date}</small><strong class='pull-right primary-font'>{name}</strong></div>".format(photo = old_emails[i][8], name = old_emails[i][4], date = old_emails[i][6]))
+                html.append("<li id='email{em_id}' class='right clearfix'> <span class='chat-img pull-right'><img src={photo} alt='User Avatar' width='50' height='50' class='img-circle' /></span><div class='chat-body clearfix'><div class='header'><small class='text-muted'><span class='glyphicon glyphicon-time'></span>{date}</small><strong class='pull-right primary-font'>{name}</strong></div>".format(em_id=old_emails[i][0], photo = old_emails[i][8], name = old_emails[i][4], date = old_emails[i][6]))
             html.append("<p>Subject: {subject}</p>".format(subject=old_emails[i][3]))
             html.append("<p>{text}</p>".format(text=old_emails[i][5]))
             if old_emails[i][10] is not None:
@@ -189,23 +201,20 @@ class Mbot(object):
         return credentials
 
     @staticmethod
-    def message_with_button(url, url_title, message_title, message_subtitle):
+    def message_with_button(url, url_title, text):
         response = \
             {"attachment":
                  {"type": "template",
                   "payload":
-                      {"template_type": "generic",
-                       "elements":
-                           [{"title": message_title,
-                             "subtitle": message_subtitle,
-                             "buttons":
+                      {"template_type": "button",
+                       "text": text,
+                       "buttons":
                                  [{"type": "web_url",
                                    "url": url,
                                    "title": url_title,
                                    "webview_height_ratio": "tall",
                                    "messenger_extensions": False,
                                    "webview_share_button": "hide"}]
-                             }]
                        }
                   }
              }

@@ -45,7 +45,10 @@ while True:
             else:
                 attachments_path = '' 
             date = gbot.get_date(email_raw)
-            photo = gbot.get_photo(sender_email)
+            try:
+                photo = gbot.get_photo(sender_email)
+            except ValueError:
+                photo = "https://library.lanecc.edu/sites/default/files/staff/User_0_2.png"
             #photo = 'photo.jpg'
             email = (user_id,sender_email, subject, sender_name, body, date, 0,photo,-1, attachments_path)
             print(email)
