@@ -1,8 +1,6 @@
 from database.database import get_email
+from mbot import Mbot
 
-i = 1
-data = get_email(i)
-while data is not None:
-	print(str(i)+': '+data[3])
-	i += 1
-	data = get_email(i)
+mbot = Mbot()
+
+print(mbot.get_old_emails(87, 'olg@gmail.com'))     

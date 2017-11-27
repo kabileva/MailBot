@@ -51,7 +51,7 @@ form input#subject {
 
 form textarea#message {
   width: 100%;
-  height: 400px;
+  height: 100px;
   background-color: #fafafa;
   -webkit-border-radius: 3px;
      -moz-border-radius: 3px;
@@ -60,7 +60,10 @@ form textarea#message {
   margin-bottom: 10px;
   font-size: large;
 }
-
+textarea:hover {
+    height: 400px;
+}
+    
 form input#submit {
   display: block;
   -webkit-border-radius: 3px;

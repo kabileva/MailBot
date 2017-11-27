@@ -43,7 +43,7 @@ def handle_incoming_messages():
     # message = data['entry'][0]['messaging'][0]['message']['text']
     # print(message)
     chat_url = flask.url_for('chat', user_psid=sender, email_id=0, _external=True)
-    mbot.send_email_as_message(sender, 2, 'Bill Gates', 'I need your help')
+    mbot.send_email_as_message(sender, 6, 'Bill Gates', 'I need your help')
     #mbot.create_dummy_email(sender)
     mbot.send_unsent_emails()
     return "ok"
@@ -79,24 +79,38 @@ def oauth2callback():
 def chat(user_psid, email_id):
     # TODO: make it secure
     form = ChatForm()
-    sender_name, subject, text = mbot.get_email(email_id)
+    email = mbot.get_email(email_id)
+    user_id, sender_id = mbot.get_user_id_and_sender_id_from_email_id(email_id)
+    conv_body = mbot.get_old_emails(user_id, sender_id)
     if flask.request.method == 'POST':
         if form.validate() is False:
             flask.flash('All fields are required.')
-            return flask.render_template('reply.html', form=form, sender_name=sender_name, subject=subject,
-                                         email_text=text, action_url=flask.url_for('chat', user_psid=user_psid,
+            return flask.render_template('reply.html', form=form, conv_body=conv_body, action_url=flask.url_for('chat', user_psid=user_psid,
                                                                                    email_id=email_id, _external=True))
         else:
-            reply_text = form.message.data
-            mbot.create_reply_email(('olg@gmail.com', 87, subject, 'Adil', reply_text,'august 11', 0))
+            attach = form.attachment.data
+            filename = None
+            full_filename = None
+            print(attach)
+            if attach is not None:
+                filename = secure_filename(attach.filename)
+                filename = str(user_psid) + '_' + str(time.time()) + '_' + filename
+                full_filename = '/var/www/mailbotapp/uploads/' + filename
+                attach.save(full_filename)
+            user_photo = mbot.get_user_photo(email[1])
+            mbot.create_email(email[1], email[2], email[3], email[4], form.message.data, email[6], 1, user_photo,  1, filename)
+            gbot.send_email(user_psid, email[2], email[3], form.message.data, full_filename)
+            #reply_text = form.message.data
+            #mbot.create_email()
+            #print(reply_text)
+            #mbot.create_reply_email(('olg@gmail.com', 87, subject, 'Adil', reply_text,'august 11', 0))
             return flask.render_template('reply.html', success=True, _external=True)
-    lst = mbot.get_email(email_id)
+    #lst = mbot.get_email(email_id)
     #print('get_email returns:',lst)
     #get old emails from the given sender
-    user_id, sender_id = mbot.get_user_id_and_sender_id_from_email_id(email_id)
-    emails_old = mbot.old_emails(user_id, sender_id)
-    return flask.render_template('reply.html', form=form, sender_name=sender_name, subject=subject, email_text=text,
-                                 old_emails=emails_old, action_url=flask.url_for('chat', user_psid=user_psid,
+    #user_id, sender_id = mbot.get_user_id_and_sender_id_from_email_id(email_id)
+    #emails_old = mbot.old_emails(user_id, sender_id)
+    return flask.render_template('reply.html', form=form, conv_body=conv_body, action_url=flask.url_for('chat', user_psid=user_psid,
                                                                                  email_id=email_id, _external=True))
 
 
@@ -112,12 +126,19 @@ def newEmail(user_psid):
             # TODO: create email
             attach = form.attachment.data
             filename = None
-            print(attach)
+          #  print(attach)
+           # print(user_psid)
             if attach is not None:
                 filename = secure_filename(attach.filename)
-                filename = '/var/www/mailbotapp/uploads/' + str(user_psid) + '_' + str(time.time()) + '_' + filename
-                attach.save(filename)
-            gbot.send_email(user_psid, form.email.data, form.subject.data, form.message.data, filename)
+                filename = str(user_psid) + '_' + str(time.time()) + '_' + filename
+                full_filename = '/var/www/mailbotapp/uploads/' + '_' + filename
+                attach.save(full_filename)
+            user_id = mbot.get_user_id(user_psid)
+          #  print(user_id)
+            user_photo = mbot.get_user_photo(user_id)
+            mbot.create_email(user_id, form.email.data, form.subject.data, 'email', form.message.data, '2017-10-29 17:45:40', 1, user_photo, 1, filename)
+            
+            gbot.send_email(user_psid, form.email.data, form.subject.data, form.message.data, full_filename)
             return flask.render_template('new_email.html', success=True, _external=True)
     return flask.render_template('new_email.html', form=form,
                                  action_url=flask.url_for('newEmail', user_psid=user_psid, _external=True))

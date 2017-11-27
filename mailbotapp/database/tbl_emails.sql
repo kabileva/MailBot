@@ -9,6 +9,7 @@ create table tbl_emails (
         email_sent INT NULL,
         email_photo TEXT NULL,
         email_sent_or_received INT NULL,
+        email_attachment TEXT  NULL,
         FOREIGN KEY (email_recipient_id)
                 REFERENCES tbl_users(user_id)
                 ON DELETE CASCADE

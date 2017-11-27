@@ -33,17 +33,22 @@ while True:
         gmail = gbot.access_gmail(creds)
         emails_raw,user[3] = gbot.get_emails(user[3])
         for email_raw in emails_raw:
+            print (email_raw)
             subject = gbot.get_subject(email_raw)
             sender_name, sender_email = gbot.get_sender(email_raw)
             body,withAtt = gbot.get_body(email_raw)
             attachments_data = []
             if withAtt:
                 print('getting attachments')
-                attachments_data = gbot.get_attachments(email_raw)
-                print('att data: ',attachments_data)  
-            #photo = gbot.get_photo(sender_email)
-            photo = 'photo.jpg'
-            email = (user_id,sender_email, subject, sender_name, body, '2017-10-29 17:45:40', 0,photo)
+                attachments_path = gbot.get_attachments(email_raw, psid)
+                print('att path: ',attachments_path) 
+            else:
+                attachments_path = '' 
+            date = gbot.get_date(email_raw)
+            photo = gbot.get_photo(sender_email)
+            #photo = 'photo.jpg'
+            email = (user_id,sender_email, subject, sender_name, body, date, 0,photo,-1, attachments_path)
+            print(email)
             add_email(email)
             
     mbot.send_unsent_emails()

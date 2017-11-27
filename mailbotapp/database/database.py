@@ -1,4 +1,5 @@
 ###################  Set UP #########################
+
 from flask import Flask, render_template, request
 from werkzeug import generate_password_hash, check_password_hash
 from flaskext.mysql import MySQL
@@ -70,10 +71,10 @@ def add_email(email): # email - tuple of arguments
 	cursor.callproc('add_email', email)
 	data = cursor.fetchall()
 	conn.commit()	
+#add_email((1,'olg@gmail.com','lunch',"Adil","what's up?",'2017-10-29 17:45:40', 0, 'www/img.com', -1, "path"))
 
-
-def add_user(FB_id, token): # FB_id - int, token - JSON
-    cursor.callproc('add_user', (FB_id, token, 0))
+def add_user(FB_id, token, user_photo): # FB_id - int, token - JSON
+    cursor.callproc('add_user', (FB_id, token, user_photo, 0))
     data = cursor.fetchall()
     conn.commit()
 
@@ -102,14 +103,31 @@ def get_FB_id(user_id):
     data = cursor.fetchone()
     return data[1]
 
-
+def get_user_photo(user_id):
+    #args = [user_id]
+    args = [6]
+    cursor.callproc('get_FB_id',args)
+    data = cursor.fetchone()
+    conn.commit()
+   # print(data)
+    #return data[3]
+    return 'https://lh3.googleusercontent.com/-XMt0yYeRLJc/AAAAAAAAAAI/AAAAAAAAAAA/txEeL9uI8Vo/s64-c/116749323011652222288.jpg'
+#print(get_user_photo(4)) #works
 def get_user_id(FB_id):
 	args = [FB_id]
 	cursor.callproc('get_user_id', args)
 	data = cursor.fetchone()
-	return data
+	return data[0]
+    #return 'https://lh3.googleusercontent.com/-XMt0yYeRLJc/AAAAAAAAAAI/AAAAAAAAAAA/txEeL9uI8Vo/s64-c/116749323011652222288.jpg'
 
-
+def get_user(FB_id):
+    user_id = get_user_id(FB_id)
+    print(user_id)
+    args = [user_id]
+    cursor.callproc('get_FB_id', args)
+    data = cursor.fetchone()
+    return data
+#print(get_user(835227646602037)[0])
 def get_email(email_id):
     
 	args = [email_id]
@@ -122,14 +140,11 @@ def get_email(email_id):
 
 # given user_id and sender_id, it fetches all old emails previously sent to the given user by the given recipient 
 def get_old_emails(user_id, sender_id):
-	args = [user_id, sender_id]
-	cursor.callproc('get_old_emails', args)
-	data = cursor.fetchall()
-	#var = []
-	#for email in data:
-	#	var.append(email[5])
-	#result = '\n'.join(var)
-	return data
+    args = [user_id, sender_id]
+    cursor.callproc('get_old_emails', args)
+    data = cursor.fetchall()
+    #print(data)
+    return data
 
 
 #print(get_old_emails(88, 'olg'))

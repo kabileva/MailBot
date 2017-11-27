@@ -6,7 +6,7 @@ from googleapiclient.discovery import build
 import requests
 import argparse
 import json
-from database.database import add_user, get_unsent_emails, update_email_stats, user_exists, get_FB_id, get_email, add_email, get_old_emails
+from database.database import add_user, get_user_photo, get_user_id, get_unsent_emails, update_email_stats, user_exists, get_FB_id, get_email, add_email, get_old_emails
 
 #add_reply(('olg@gmail.com', 87, subject, 'Adil', reply_text,'august 11', 0))
 class Mbot(object):
@@ -21,7 +21,9 @@ class Mbot(object):
     def send_text(self, user_psid, text):
         self.send_message(user_psid, {"text": text})
         return
-
+    def get_user_photo(self, user_id):
+        photo = get_user_photo(user_id)
+        return photo 
     def send_message(self, user_psid, response):
         # Construct the message body
         request_body = {"recipient": {"id": user_psid},
@@ -53,13 +55,13 @@ class Mbot(object):
 		return
 
     def get_email(self, email_id):
-		print('id:',email_id)
+		#print('id:',email_id)
 		email = get_email(email_id)
-		print('email:', email)
-		sender_name = email[4]
-		subject = email[3]
-		text = email[5]
-		return sender_name, subject, text
+		#print('email:', email)
+		#sender_name = email[4]
+		#subject = email[3]
+		#text = email[5]
+		return email
 
     def send_login_button(self, user_psid, url):
         message = self.message_with_button(url, url_title='Gmail Login',
@@ -102,16 +104,19 @@ class Mbot(object):
         self.save_credentials(user_psid, credentials)
         return credentials
 
-    def create_email(self, user_psid, recipient_email, subject, body):
-        return
+    def create_email(self, recipient_id, sender_id, subject, sender_name, text, date_time, sent, photo, sent_or_received, attachment):
+        add_email((recipient_id, sender_id, subject, sender_name, text, date_time, sent, photo, sent_or_received, attachment))
 
  #   def create_reply_email(self, reply):
   #      add_reply(reply)
    #     return 
-
+    def get_user_id(self, FB_id):
+       user_id = get_user_id(FB_id)
+       return user_id
+ 
     def save_credentials(self, user_psid, credentials):
         # TODO: save credentials in database
-        add_user(user_psid, json.dumps(credentials))
+        add_user(user_psid, json.dumps(credentials), 'https://lh3.googleusercontent.com/-XMt0yYeRLJc/AAAAAAAAAAI/AAAAAAAAAAA/txEeL9uI8Vo/s64-c/116749323011652222288.jpg')
         return
     
     def get_user_id_and_sender_id_from_email_id(self, email_id):
@@ -122,22 +127,26 @@ class Mbot(object):
     #print(get_user_id_and_sender_id_from_email_id(1))
     def get_old_emails(self, user_id, sender_id):
         old_emails =  get_old_emails(user_id, sender_id)
-        html = ""
-        for i in range(0, old_emails.length - 1):
-         """ <li class="left clearfix">
-                  <span class="chat-img pull-left">
-                      <img src=%s alt="User Avatar" class="img-circle" />
-                  </span>
-                  <div class=\"chat-body clearfix">
-                      <div class="header">
-                          <strong class="primary-font">%s</strong> <small class="pull-right text-muted">
-                          <span class="glyphicon glyphicon-time"></span>%s</small>
-                      </div>
-                      <p>
-                          %s
-                      </p>
-                  </div>
-              </li> """
+        #print(len(old_emails))
+        html = []
+        for i in range(0, len(old_emails)):
+            if (old_emails[i][9] == -1):
+                #print('was sent to us')
+                html.append("<li class='left clearfix'> <span class='chat-img pull-left'><img src={photo} alt='User Avatar' width='50' height='50' class='img-circle' /></span><div class='chat-body clearfix'><div class='header'><strong class='primary-font'>{name}</strong> <small class='pull-right text-muted'><span class='glyphicon glyphicon-time'></span>{date}</small></div>".format(photo = old_emails[i][8], name = old_emails[i][4], date = old_emails[i][6]))
+            else: 
+                html.append("<li class='right clearfix'> <span class='chat-img pull-right'><img src={photo} alt='User Avatar' width='50' height='50' class='img-circle' /></span><div class='chat-body clearfix'><div class='header'><small class='text-muted'><span class='glyphicon glyphicon-time'></span>{date}</small><strong class='pull-right primary-font'>{name}</strong></div>".format(photo = old_emails[i][8], name = old_emails[i][4], date = old_emails[i][6]))
+            html.append("<p>Subject: {subject}</p>".format(subject=old_emails[i][3]))
+            html.append("<p>{text}</p>".format(text=old_emails[i][5]))
+            if old_emails[i][10] is not None:
+                # TODO: check for possible bugs
+                atts = old_emails[i][10].split(';')
+                urls = []
+                for att in atts:
+                    url = self.base_url + 'attachment/' + att.strip()
+                    name = att.split('_')[-1]
+                    html.append("<a href='{link}' download>{name}</a>".format(link=url, name=name))
+            html.append("</div></li>")
+        return '\n'.join(html)
 
     
             
