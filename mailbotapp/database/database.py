@@ -73,8 +73,8 @@ def add_email(email): # email - tuple of arguments
 	conn.commit()	
 #add_email((1,'olg@gmail.com','lunch',"Adil","what's up?",'2017-10-29 17:45:40', 0, 'www/img.com', -1, "path"))
 
-def add_user(FB_id, token, user_photo): # FB_id - int, token - JSON
-    cursor.callproc('add_user', (FB_id, token, user_photo, 0))
+def add_user(FB_id, token, user_photo, name): # FB_id - int, token - JSON
+    cursor.callproc('add_user', (FB_id, token, user_photo, name, 0))
     data = cursor.fetchall()
     conn.commit()
 
@@ -104,15 +104,21 @@ def get_FB_id(user_id):
     return data[1]
 
 def get_user_photo(user_id):
-    #args = [user_id]
-    args = [6]
+    args = [user_id]
+    #args = [6]
     cursor.callproc('get_FB_id',args)
     data = cursor.fetchone()
     conn.commit()
    # print(data)
-    #return data[3]
-    return 'https://lh3.googleusercontent.com/-XMt0yYeRLJc/AAAAAAAAAAI/AAAAAAAAAAA/txEeL9uI8Vo/s64-c/116749323011652222288.jpg'
+    return data[3]
+    #return 'https://lh3.googleusercontent.com/-XMt0yYeRLJc/AAAAAAAAAAI/AAAAAAAAAAA/txEeL9uI8Vo/s64-c/116749323011652222288.jpg'
 #print(get_user_photo(4)) #works
+def get_user_name(user_id): 
+    args = [user_id]
+    cursor.callproc('get_FB_id',args)
+    data = cursor.fetchone()
+    conn.commit()
+    return data[4]
 def get_user_id(FB_id):
 	args = [FB_id]
 	cursor.callproc('get_user_id', args)

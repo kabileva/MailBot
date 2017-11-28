@@ -3,4 +3,5 @@ create table tbl_users (
         user_FB_id BIGINT NULL,
 	user_token JSON NOT NULL,
     user_photo TEXT NULL,
+    user_name VARCHAR(45),
         PRIMARY KEY (user_id));

@@ -45,7 +45,7 @@ class Gbot(object):
     def get_subject(self,email):
         for header in email['payload']['headers']:
             if header['name']=='Subject':
-                return str(header['value'])
+                return header['value']
     def get_sender(self,email):
         for header in email['payload']['headers']:
             if header['name']=='From':
@@ -56,7 +56,7 @@ class Gbot(object):
                 else:
                     name = header['value']
                     email = header['value']
-                return str(name), str(email)
+                return name, email
 
     def get_body(self, email):
         withAtt=False
@@ -76,7 +76,7 @@ class Gbot(object):
                         clean_one = part_data.replace("-","+") # decoding from Base64 to UTF-8
                         clean_one = clean_one.replace("_","/") # decoding from Base64 to UTF-8
                         clean_two = base64.b64decode (bytes(clean_one)) # decoding from Base64 to UTF-8
-                        text = str(clean_two)
+                        text = clean_two
             else:
                 for d in mssg_parts:    
                     if 'parts' in d:
@@ -109,7 +109,7 @@ class Gbot(object):
                 clean_one = part_data.replace("-","+") # decoding from Base64 to UTF-8
                 clean_one = clean_one.replace("_","/") # decoding from Base64 to UTF-8
                 clean_two = base64.b64decode (bytes(clean_one)) # decoding from Base64 to UTF-8
-                text = str(clean_two)
+                text = clean_two
         return text,withAtt
     
     #OUTPUT:[(file_name, byte_data),(..)...]       

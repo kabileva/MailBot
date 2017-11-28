@@ -6,7 +6,7 @@ from googleapiclient.discovery import build
 import requests
 import argparse
 import json
-from database.database import add_user, get_user_photo, get_user_id, get_unsent_emails, update_email_stats, user_exists, get_FB_id, get_email, add_email, get_old_emails
+from database.database import add_user, get_user_photo, get_user_name, get_user_id, get_unsent_emails, update_email_stats, user_exists, get_FB_id, get_email, add_email, get_old_emails
 
 #add_reply(('olg@gmail.com', 87, subject, 'Adil', reply_text,'august 11', 0))
 class Mbot(object):
@@ -21,9 +21,14 @@ class Mbot(object):
     def send_text(self, user_psid, text):
         self.send_message(user_psid, {"text": text})
         return
+
     def get_user_photo(self, user_id):
         photo = get_user_photo(user_id)
         return photo 
+
+    def get_user_name(self, user_id):
+        return get_user_name(user_id)
+
     def send_message(self, user_psid, response):
         # Construct the message body
         request_body = {"recipient": {"id": user_psid},
@@ -48,7 +53,7 @@ class Mbot(object):
 
     def send_instructions(self, user_psid):
         new_email_url = self.base_url + 'newEmail/' + str(user_psid)
-        message = Mbot.message_with_button(new_email_url, 'New Email', "You can compose new email using this button. Once you receive an email, you will see it here. You can search for email conversation by typing 'search <email or name>'")
+        message = Mbot.message_with_button(new_email_url, 'New Email', "You can compose new email using this button. Once you receive an email, you will see it here.")
         self.send_message(user_psid, message)
         return 
 
@@ -76,9 +81,8 @@ class Mbot(object):
 		return email
 
     def send_login_button(self, user_psid, url):
-        message = self.message_with_button(url, url_title='Gmail Login',
-                                          message_title='Please login to your Gmail account',
-                                          message_subtitle='Tap the button')
+        message = self.message_with_button(url, 'Gmail Login',
+                                          'Please login to your Gmail account')
         self.send_message(user_psid, message)
         return
 
@@ -102,7 +106,7 @@ class Mbot(object):
             include_granted_scopes='true')
         return authorization_url, state
 
-    def oauth2callback(self, user_psid, state, redirect_uri, authorization_response):
+    def oauth2callback(self, user_psid, user_profile, state, redirect_uri, authorization_response):
         flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
             self.CLIENT_SECRETS_FILE, scopes=self.SCOPES, state=state)
         flow.redirect_uri = redirect_uri
@@ -113,7 +117,7 @@ class Mbot(object):
         #              credentials in a persistent database instead.
         self.send_welcome(user_psid)
         credentials = Mbot.credentials_to_dict(flow.credentials)
-        self.save_credentials(user_psid, credentials)
+        self.save_credentials(user_psid, user_profile, credentials)
         return credentials
 
     def create_email(self, recipient_id, sender_id, subject, sender_name, text, date_time, sent, photo, sent_or_received, attachment):
@@ -126,9 +130,11 @@ class Mbot(object):
        user_id = get_user_id(FB_id)
        return user_id
  
-    def save_credentials(self, user_psid, credentials):
+    def save_credentials(self, user_psid, user_profile, credentials):
         # TODO: save credentials in database
-        add_user(user_psid, json.dumps(credentials), 'https://lh3.googleusercontent.com/-XMt0yYeRLJc/AAAAAAAAAAI/AAAAAAAAAAA/txEeL9uI8Vo/s64-c/116749323011652222288.jpg')
+        user_name = user_profile['first_name']
+        user_photo = user_profile['profile_pic']
+        add_user(user_psid, json.dumps(credentials), user_photo, user_name)
         return
     
     def get_user_id_and_sender_id_from_email_id(self, email_id):

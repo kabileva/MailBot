@@ -1,5 +1,7 @@
 from __future__ import print_function
 import flask
+import requests
+import json
 from .mbot import Mbot
 from .gbot import Gbot
 from werkzeug.utils import secure_filename
@@ -43,11 +45,14 @@ def handle_incoming_messages():
 #    print('sender psid:', sender)
     # message = data['entry'][0]['messaging'][0]['message']['text']
     # print(message)
-    chat_url = flask.url_for('chat', user_psid=sender, email_id=0, _external=True)
+    #chat_url = flask.url_for('chat', user_psid=sender, email_id=0, _external=True)
     #mbot.send_email_as_message(sender, 6, 'Bill Gates', 'I need your help')
-    mbot.send_instructions(sender)
-    #mbot.create_dummy_email(sender)
-    mbot.send_unsent_emails()
+    #user_profile = json.loads(requests.get("https://graph.facebook.com/v2.6/{psid}?fields=first_name,last_name,profile_pic&access_token={token}".format(psid=sender, token=mbot.ACCESS_TOKEN)).content)
+    #mbot.send_text(sender, user_profile['profile_pic'])
+    else:
+        mbot.send_instructions(sender)
+        #mbot.create_dummy_email(sender)
+        mbot.send_unsent_emails()
     return "ok"
 
 
@@ -69,7 +74,9 @@ def oauth2callback():
     user_psid = flask.session['user_psid']
     redirect_uri = flask.url_for('oauth2callback', _external=True)
     authorization_response = flask.request.url
-    credentials = mbot.oauth2callback(user_psid, state, redirect_uri, authorization_response)
+    # get user profile (name, photo) from Facebook
+    user_profile = json.loads(requests.get("https://graph.facebook.com/v2.6/{psid}?fields=first_name,last_name,profile_pic&access_token={token}".format(psid=user_psid, token=mbot.ACCESS_TOKEN)).content)
+    credentials = mbot.oauth2callback(user_psid, user_profile, state, redirect_uri, authorization_response)
     # Store credentials in the session.
     # ACTION ITEM: In a production app, you likely want to save these
     #              credentials in a persistent database instead.
@@ -102,8 +109,9 @@ def chat(user_psid, email_id):
                 full_filename = '/var/www/mailbotapp/uploads/' + filename
                 attach.save(full_filename)
             user_photo = mbot.get_user_photo(email[1])
+            user_name = mbot.get_user_name(email[1])
             date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            mbot.create_email(email[1], email[2], email[3], email[4], form.message.data, date, 1, user_photo,  1, filename)
+            mbot.create_email(email[1], email[2], email[3], user_name, form.message.data, date, 1, user_photo,  1, filename)
             gbot.send_email(user_psid, email[2], email[3], form.message.data, full_filename)
             #reply_text = form.message.data
             #mbot.create_email()
@@ -139,8 +147,9 @@ def newEmail(user_psid):
             user_id = mbot.get_user_id(user_psid)
           #  print(user_id)
             user_photo = mbot.get_user_photo(user_id)
+            user_name = mbot.get_user_name(user_id)
             date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            mbot.create_email(user_id, form.email.data, form.subject.data, form.email.data, form.message.data, date, 1, user_photo, 1, filename)
+            mbot.create_email(user_id, form.email.data, form.subject.data, user_name, form.message.data, date, 1, user_photo, 1, filename)
             gbot.send_email(user_psid, form.email.data, form.subject.data, form.message.data, full_filename)
             return flask.render_template('new_email.html', success=True, _external=True)
     return flask.render_template('new_email.html', form=form,
