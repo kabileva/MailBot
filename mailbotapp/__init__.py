@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import print_function
 import flask
 import requests
@@ -58,6 +59,8 @@ def handle_incoming_messages():
 
 @app.route('/authorize/<int:user_psid>')
 def authorize(user_psid):
+    if mbot.check_authorized(user_psid):
+        return "You have already authorized."
     redirect_uri = flask.url_for('oauth2callback', _external=True)
     authorization_url, state = mbot.authorize(redirect_uri)
     # Store the state so the callback can verify the auth server response.

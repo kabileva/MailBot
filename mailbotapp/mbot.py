@@ -1,11 +1,14 @@
+# -*- coding: utf-8 -*-
 from __future__ import print_function
 import httplib2
 import google.oauth2.credentials
 import google_auth_oauthlib.flow
 from googleapiclient.discovery import build
+import pymysql
 import requests
 import argparse
 import json
+import time
 from database.database import add_user, get_user_photo, get_user_name, get_user_id, get_unsent_emails, update_email_stats, user_exists, get_FB_id, get_email, add_email, get_old_emails
 
 #add_reply(('olg@gmail.com', 87, subject, 'Adil', reply_text,'august 11', 0))
@@ -43,6 +46,8 @@ class Mbot(object):
         new_email_url = self.base_url + 'newEmail/' + str(user_psid)
         message = Mbot.message_with_button2(new_email_url, 'New Email', chat_url, 'Open and Reply', sender_name+": "+subject)
         self.send_message(user_psid, message)
+        with open("incoming.logs", "a") as f:
+            f.write(subject+':'+str(time.time())+'\n')
         return
 
     def send_welcome(self, user_psid):
@@ -121,7 +126,10 @@ class Mbot(object):
         return credentials
 
     def create_email(self, recipient_id, sender_id, subject, sender_name, text, date_time, sent, photo, sent_or_received, attachment):
-        add_email((recipient_id, sender_id, subject, sender_name, text, date_time, sent, photo, sent_or_received, attachment))
+        try:       
+            add_email((recipient_id, sender_id, subject, sender_name, text, date_time, sent, photo, sent_or_received, attachment))
+        except pymysql.err.InternalError:
+            add_email((recipient_id, sender_id, u'Error', sender_name, u'Currently only English is supported. Most probably this email contained symbols from other languages.',date_time, sent, photo, sent_or_received, attachment))
 
  #   def create_reply_email(self, reply):
   #      add_reply(reply)

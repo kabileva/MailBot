@@ -13,10 +13,18 @@ app.config['MYSQL_DATABASE_USER'] = 'root'
 app.config['MYSQL_DATABASE_PASSWORD'] = 'gmailbot'
 app.config['MYSQL_DATABASE_DB'] = 'mailbot'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
+app.config['MYSQL_CHARSET']='utf8mb4'
 mysql.init_app(app)
 
 conn = mysql.connect()
 cursor = conn.cursor()
+
+
+#cursor.execute("SET NAMES utf8mb4;") #or utf8 or any other charset you want to handle
+#cursor.execute("SET CHARACTER SET utf8mb4;") #same as above
+
+#cursor.execute("SET character_set_connection=utf8mb4;") #same as above
+
 ###################  End Set UP #########################
 
 
