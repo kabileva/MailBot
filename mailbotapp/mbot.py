@@ -16,7 +16,7 @@ class Mbot(object):
     def __init__(self):
         self.SCOPES = ['https://mail.google.com/']
         self.CLIENT_SECRETS_FILE = '/var/www/mailbotapp/mailbotapp/client_secret.json'
-        configs = json.load(open('configs.json'))
+        configs = json.load(open('config.json'))
         self.ACCESS_TOKEN = configs["ACCESS_TOKEN"]
         self.VERIFY_TOKEN = configs["VERIFY_TOKEN"]
         self.base_url = configs["base_url"]
