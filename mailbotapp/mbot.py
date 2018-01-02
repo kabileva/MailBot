@@ -11,15 +11,15 @@ import json
 import time
 from database.database import add_user, get_user_photo, get_user_name, get_user_id, get_unsent_emails, update_email_stats, user_exists, get_FB_id, get_email, add_email, get_old_emails
 
-#add_reply(('olg@gmail.com', 87, subject, 'Adil', reply_text,'august 11', 0))
+
 class Mbot(object):
     def __init__(self):
-        self.ACCESS_TOKEN = "EAAXuNBwZBG9kBAECVP64YldWTKZCJQSYQ5ZBpj1Pm2bWBZAradyU9xYHy7q66Yf4vZAHny0cWJQJNcqQ93ICHHJX7dJSqFUPGwpySZBOQtZCRlKn72JbYqYKPW8H70xdj2BLGS1BQ8DinSggoF2r6OlC3PIEEp8B2oUyLHs7iXHLgZDZD"
-        self.VERIFY_TOKEN = "secret"
-        #self.SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
         self.SCOPES = ['https://mail.google.com/']
         self.CLIENT_SECRETS_FILE = '/var/www/mailbotapp/mailbotapp/client_secret.json'
-        self.base_url = 'https://a0ddbefd.ngrok.io/'
+        configs = json.load(open('configs.json'))
+        self.ACCESS_TOKEN = configs["ACCESS_TOKEN"]
+        self.VERIFY_TOKEN = configs["VERIFY_TOKEN"]
+        self.base_url = configs["base_url"]
 
     def send_text(self, user_psid, text):
         self.send_message(user_psid, {"text": text})
@@ -63,27 +63,20 @@ class Mbot(object):
         return 
 
     def send_unsent_emails(self):
-		data = get_unsent_emails()
-		for row in data:
-		    email_id = row[0]
-		    user_id = row[1]
-		    fb_id = get_FB_id(user_id) # TODO: get fb_id from user id
-		    print(fb_id)
-		    #fb_id = 1438669066252571
-		    subject = row[3]
-		    sender_name = row[4]
-		    self.send_email_as_message(fb_id, email_id, sender_name, subject)
-		update_email_stats()
-		return
+        data = get_unsent_emails()
+        for row in data:
+            email_id = row[0]
+            user_id = row[1]
+            fb_id = get_FB_id(user_id)
+            subject = row[3]
+            sender_name = row[4]
+            self.send_email_as_message(fb_id, email_id, sender_name, subject)
+        update_email_stats()
+        return
 
     def get_email(self, email_id):
-		#print('id:',email_id)
-		email = get_email(email_id)
-		#print('email:', email)
-		#sender_name = email[4]
-		#subject = email[3]
-		#text = email[5]
-		return email
+        email = get_email(email_id)
+        return email
 
     def send_login_button(self, user_psid, url):
         message = self.message_with_button(url, 'Gmail Login',
@@ -131,15 +124,11 @@ class Mbot(object):
         except pymysql.err.InternalError:
             add_email((recipient_id, sender_id, u'Error', sender_name, u'Currently only English is supported. Most probably this email contained symbols from other languages.',date_time, sent, photo, sent_or_received, attachment))
 
- #   def create_reply_email(self, reply):
-  #      add_reply(reply)
-   #     return 
     def get_user_id(self, FB_id):
        user_id = get_user_id(FB_id)
        return user_id
  
     def save_credentials(self, user_psid, user_profile, credentials):
-        # TODO: save credentials in database
         user_name = user_profile['first_name']
         user_photo = user_profile['profile_pic']
         add_user(user_psid, json.dumps(credentials), user_photo, user_name)
@@ -150,14 +139,13 @@ class Mbot(object):
         user_id = email[1]
         sender_id = email[2]
         return user_id, sender_id    
-    #print(get_user_id_and_sender_id_from_email_id(1))
+
+
     def get_old_emails(self, user_id, sender_id):
         old_emails =  get_old_emails(user_id, sender_id)
-        #print(len(old_emails))
         html = []
         for i in range(0, len(old_emails)):
             if (old_emails[i][9] == -1):
-                #print('was sent to us')
                 html.append("<li id='email{em_id}' class='left clearfix'> <span class='chat-img pull-left'><img src={photo} alt='User Avatar' width='50' height='50' class='img-circle' /></span><div class='chat-body clearfix'><div class='header'><strong class='primary-font'>{name}</strong> <small class='pull-right text-muted'><span class='glyphicon glyphicon-time'></span>{date}</small></div>".format(em_id=old_emails[i][0], photo = old_emails[i][8], name = old_emails[i][4], date = old_emails[i][6]))
             else: 
                 html.append("<li id='email{em_id}' class='right clearfix'> <span class='chat-img pull-right'><img src={photo} alt='User Avatar' width='50' height='50' class='img-circle' /></span><div class='chat-body clearfix'><div class='header'><small class='text-muted'><span class='glyphicon glyphicon-time'></span>{date}</small><strong class='pull-right primary-font'>{name}</strong></div>".format(em_id=old_emails[i][0], photo = old_emails[i][8], name = old_emails[i][4], date = old_emails[i][6]))
@@ -187,8 +175,6 @@ class Mbot(object):
             this_email = get_email(next_email_id)
             conversation_history.append(this_email)
             next_email_id = this_email[9]
-       # return conversation_history
-       # just for test:
         texts = []
         for email in conversation_history:
             texts.append(email[5])

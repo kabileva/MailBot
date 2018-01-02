@@ -19,10 +19,6 @@ mbot = Mbot()
 gbot = Gbot()
 
 
-# @app.route('/')
-# def check_server():
-#   return 'ok'
-
 @app.route('/', methods=['GET'])
 def handle_verification():
     if flask.request.args['hub.verify_token'] == mbot.VERIFY_TOKEN:
@@ -36,23 +32,14 @@ def handle_incoming_messages():
     data = flask.request.json
     sender = data['entry'][0]['messaging'][0]['sender']['id']
     messagingArray = data['entry'][0]['messaging'][0]
-    #print(messagingArray)
     if messagingArray.has_key('postback'):
         if messagingArray['postback']['payload'] == 'GET_STARTED_PAYLOAD':
             mbot.send_text(sender, 'Hello there!')
     if not mbot.check_authorized(sender):
         auth_url = flask.url_for('authorize', user_psid=sender, _external=True)
         mbot.send_login_button(sender, auth_url)
-#    print('sender psid:', sender)
-    # message = data['entry'][0]['messaging'][0]['message']['text']
-    # print(message)
-    #chat_url = flask.url_for('chat', user_psid=sender, email_id=0, _external=True)
-    #mbot.send_email_as_message(sender, 6, 'Bill Gates', 'I need your help')
-    #user_profile = json.loads(requests.get("https://graph.facebook.com/v2.6/{psid}?fields=first_name,last_name,profile_pic&access_token={token}".format(psid=sender, token=mbot.ACCESS_TOKEN)).content)
-    #mbot.send_text(sender, user_profile['profile_pic'])
     else:
         mbot.send_instructions(sender)
-        #mbot.create_dummy_email(sender)
         mbot.send_unsent_emails()
     return "ok"
 
@@ -80,11 +67,6 @@ def oauth2callback():
     # get user profile (name, photo) from Facebook
     user_profile = json.loads(requests.get("https://graph.facebook.com/v2.6/{psid}?fields=first_name,last_name,profile_pic&access_token={token}".format(psid=user_psid, token=mbot.ACCESS_TOKEN)).content)
     credentials = mbot.oauth2callback(user_psid, user_profile, state, redirect_uri, authorization_response)
-    # Store credentials in the session.
-    # ACTION ITEM: In a production app, you likely want to save these
-    #              credentials in a persistent database instead.
-    #
-    #return flask.jsonify(credentials)
     return 'Authorization is complete.'
 
     
@@ -116,16 +98,7 @@ def chat(user_psid, email_id):
             date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             mbot.create_email(email[1], email[2], email[3], user_name, form.message.data, date, 1, user_photo,  1, filename)
             gbot.send_email(user_psid, email[2], email[3], form.message.data, full_filename)
-            #reply_text = form.message.data
-            #mbot.create_email()
-            #print(reply_text)
-            #mbot.create_reply_email(('olg@gmail.com', 87, subject, 'Adil', reply_text,'august 11', 0))
             return flask.render_template('reply.html', success=True, _external=True)
-    #lst = mbot.get_email(email_id)
-    #print('get_email returns:',lst)
-    #get old emails from the given sender
-    #user_id, sender_id = mbot.get_user_id_and_sender_id_from_email_id(email_id)
-    #emails_old = mbot.old_emails(user_id, sender_id)
     return flask.render_template('reply.html', form=form, sender_name=sender_name, conv_body=conv_body, action_url=flask.url_for('chat', user_psid=user_psid, email_id=email_id, _external=True))
 
 
@@ -138,7 +111,6 @@ def newEmail(user_psid):
             return flask.render_template('new_email.html', form=form,
                                          action_url=flask.url_for('newEmail', user_psid=user_psid, _external=True))
         else:
-            # TODO: create email
             attach = form.attachment.data
             filename = None
             full_filename = None
@@ -148,7 +120,6 @@ def newEmail(user_psid):
                 full_filename = '/var/www/mailbotapp/uploads/' + '_' + filename
                 attach.save(full_filename)
             user_id = mbot.get_user_id(user_psid)
-          #  print(user_id)
             user_photo = mbot.get_user_photo(user_id)
             user_name = mbot.get_user_name(user_id)
             date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -158,11 +129,11 @@ def newEmail(user_psid):
     return flask.render_template('new_email.html', form=form,
                                  action_url=flask.url_for('newEmail', user_psid=user_psid, _external=True))
 
+
 @app.route('/attachment/<path:path>', methods=['GET'])
 def get_attachment(path):
     return flask.send_from_directory('/var/www/mailbotapp/uploads/', path, as_attachment=True)
 
 if __name__ == "__main__":
-    #print(get_user_id_and_sender_id_from_email_id(1))
     app.run()
 
